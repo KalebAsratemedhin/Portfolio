@@ -2,10 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  /* --background: #ffffff;
-  --foreground: #171717; */
+
+
+
+.cloud {
+  clip-path: path("M 120 200 C 120 90, 250 40, 400 50 C 750 80, 500 500, 370 500 C 300 500, 135 400, 120 195  Z");
 }
+
+
+
 
 @media (prefers-color-scheme: dark) {
   :root {

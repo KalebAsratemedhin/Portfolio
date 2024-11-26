@@ -1,16 +1,12 @@
 import Link from "next/link";
-import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn } from "react-icons/fa";
-
+import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaMailchimp, FaMailBulk } from "react-icons/fa";
+import { IoIosMail } from "react-icons/io";
 const Footer = () => {
   return (
     <footer className="bg-gradient-to-b from-gray-900 to-gray-800 text-white py-16 px-8 md:px-16">
       <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
-        <div className="col-span-1 flex flex-col items-start">
-         
-          <div className="text-2xl font-bold mb-4 flex gap-2 items-center">  <img src="/logo-1.ico" alt="logo" className=" w-20" /> AutoFlash</div>
-          <p className="text-gray-400">
-            Your trusted partner for all car rental needs. We provide affordable, reliable, and comfortable vehicles for any journey.
-          </p>
+        <div className="col-span-1 flex flex-col items-start">     
+          <img src="/logo-one-line-inverse.png" className="" width={650} alt="logo" />
         </div>
 
         <div className="col-span-1">
@@ -40,19 +36,19 @@ const Footer = () => {
         </div>
 
         <div className="col-span-1">
-          <h3 className="font-semibold mb-4">Contact Us</h3>
+          <h3 className="font-semibold mb-4">Contact me</h3>
           <ul className="space-y-2 text-gray-300">
-            <li>Phone: +1 234 567 890</li>
-            <li>Email: support@autoflash.com</li>
-            <li>Address: 123 Car St, Auto City, CA 45678</li>
+            <li>Phone: +251 996304541</li>
+            <li>Email: risekab@gmail.com</li>
+            <li>Address: King George IV Street, Addis Ababa, Ethiopia</li>
           </ul>
         </div>
 
         <div className="col-span-1">
-          <h3 className="font-semibold mb-4">Follow Us</h3>
+          <h3 className="font-semibold mb-4">Follow me</h3>
           <div className="flex space-x-4">
             <Link href="https://facebook.com" className="hover:text-blue-500">
-              <FaFacebookF size={24} />
+              <IoIosMail size={24} />
             </Link>
             <Link href="https://twitter.com" className="hover:text-blue-400">
               <FaTwitter size={24} />
@@ -68,7 +64,7 @@ const Footer = () => {
       </div>
 
       <div className="mt-12 border-t border-gray-700 pt-8 text-center text-gray-400">
-        <p>&copy; {new Date().getFullYear()} AutoFlash. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} All rights reserved.</p>
       </div>
     </footer>
   );
