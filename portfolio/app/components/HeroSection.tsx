@@ -3,8 +3,10 @@ import { FaGithub, FaLinkedin } from 'react-icons/fa';
 import { HiArrowNarrowRight } from 'react-icons/hi';
 import Typewriter from 'typewriter-effect';
 import WobblyImage from './WobblyImage';
+import { useRouter } from 'next/navigation';
 
 const HeroSection = () => {
+  const router = useRouter()
   return (
     <div id="home" className="w-full h-screen bg-primary">
       <div className="max-w-[1000px] mx-auto px-8 flex flex-col md:flex-row justify-center items-center h-full gap-8">
@@ -34,7 +36,7 @@ const HeroSection = () => {
           </p>
           
           <div className="flex gap-4 animate-slide-in" style={{ animationDelay: '600ms' }}>
-            <button className="btn-primary group">
+            <button onClick={() => router.push('#portfolio')} className='group'>
               View Work 
               <span className="group-hover:rotate-90 duration-300 inline-block ml-2">
                 <HiArrowNarrowRight />
@@ -42,10 +44,10 @@ const HeroSection = () => {
             </button>
             
             <div className="flex gap-4">
-              <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="nav-link">
+              <a href="https://github.com/KalebAsratemedhin" target="_blank" rel="noopener noreferrer" className="nav-link">
                 <FaGithub size={30} />
               </a>
-              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="nav-link">
+              <a href="https://www.linkedin.com/in/kaleb-asratemedhin-81748625b/" target="_blank" rel="noopener noreferrer" className="nav-link">
                 <FaLinkedin size={30} />
               </a>
             </div>

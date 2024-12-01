@@ -54,37 +54,31 @@ const Footer = () => {
     {
       id: 1,
       icon: <HiMail size={24} />,
-      href: "mailto:your.email@example.com",
+      href: "mailto:risekab@gmail.com",
       label: "Email"
     },
     {
       id: 2,
       icon: <FaLinkedin size={24} />,
-      href: "https://linkedin.com/in/yourusername",
+      href: "https://www.linkedin.com/in/kaleb-asratemedhin-81748625b/",
       label: "LinkedIn"
     },
     {
       id: 3,
       icon: <FaGithub size={24} />,
-      href: "https://github.com/yourusername",
+      href: "https://github.com/KalebAsratemedhin",
       label: "GitHub"
     },
     {
       id: 4,
       icon: <SiLeetcode size={24} />,
-      href: "https://leetcode.com/yourusername",
+      href: "https://leetcode.com/4ureyes",
       label: "LeetCode"
-    },
-    {
-      id: 5,
-      icon: <FaTwitter size={24} />,
-      href: "https://twitter.com/yourusername",
-      label: "Twitter"
     },
     {
       id: 6,
       icon: <FaTelegram size={24} />,
-      href: "https://t.me/yourusername",
+      href: "https://t.me/Thequantumduck",
       label: "Telegram"
     }
   ];

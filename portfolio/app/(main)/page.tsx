@@ -3,8 +3,8 @@ import Contact from "../components/Contact";
 import Projects from "../components/FeaturedProjects";
 import HeroSection from "../components/HeroSection";
 import ScrollWatcher from "../components/ScrollWatcher";
+import Services from "../components/Services";
 import Skills from "../components/Skills";
-import TechSkills from "../components/TechSkills";
 
 export default function Home() {
   return (
@@ -14,6 +14,7 @@ export default function Home() {
         <ScrollWatcher />
         <HeroSection /> 
         <About />
+        <Services />
         <Projects />
         <Skills />
         <Contact />

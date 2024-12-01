@@ -3,11 +3,11 @@ const Contact = () => {
       <div id="contact" className="w-full min-h-screen bg-primary flex justify-center items-center p-4">
         <form className="flex flex-col max-w-[600px] w-full animate-slide-up">
           <div className="pb-8">
-            <p className="section-title">Contact</p>
-            <p className="text-textSecondary py-4">
+            <p className="section-title text-4xl font-bold">Contact</p>
+            <p className="text-textSecondary text-2xl py-4">
               Submit the form below or send me an email
             </p>
-          </div>
+          </div> 
           <input
             className="bg-primary/30 p-2 border-2 border-secondary/20 rounded-lg text-textPrimary focus:outline-none focus:border-secondary transition-colors duration-300"
             type="text"

@@ -1,34 +1,10 @@
 'use client'
 
 import { useEffect, useRef } from "react";
+import { projects } from "../data";
 
 const Projects = () => {
-  const projects = [
-    {
-      id: 1,
-      title: "Project 1",
-      description: "Description of project 1. Add your project details here.",
-      tech: ["React", "Node.js", "MongoDB"],
-      link: "https://github.com/yourusername/project1",
-      year: "2024",
-    },
-    {
-      id: 2,
-      title: "Project 2",
-      description: "Description of project 2. Add your project details here.",
-      tech: ["Python", "TensorFlow", "Flask"],
-      link: "https://github.com/yourusername/project2",
-      year: "2023",
-    },
-    {
-      id: 3,
-      title: "Project 3",
-      description: "Description of project 3. Add your project details here.",
-      tech: ["React", "Firebase", "Tailwind"],
-      link: "https://github.com/yourusername/project3",
-      year: "2023",
-    },
-  ];
+  
 
   const sectionRef = useRef<HTMLDivElement>(null);
 
@@ -63,15 +39,13 @@ const Projects = () => {
     <div ref={sectionRef} id="portfolio" className="w-full min-h-screen bg-primary text-textPrimary py-20">
       <div className="max-w-[1000px] mx-auto p-4">
         <div className="pb-8">
-          <p className="section-title">Projects</p>
-          <p className="text-textSecondary">Check out some of my recent work</p>
+          <p className="section-title text-4xl font-bold">Projects</p>
+          <p className="text-textSecondary text-2xl">Check out some of my recent work</p>
         </div>
 
         <div className="relative">
-          {/* Timeline line */}
           <div className="absolute left-0 md:left-1/2 transform -translate-x-1/2 h-full w-0.5 bg-secondary/30"></div>
 
-          {/* Projects */}
           {projects.map((project, index) => (
             <div
               key={project.id}
@@ -79,10 +53,8 @@ const Projects = () => {
                 index % 2 === 0 ? 'md:flex-row-reverse' : ''
               }`}
             >
-              {/* Timeline dot */}
               <div className="absolute left-0 md:left-1/2 transform -translate-x-1/2 w-4 h-4 bg-secondary rounded-full"></div>
 
-              {/* Content */}
               <div
                 className={`ml-8 md:ml-0 md:w-5/12 ${
                   index % 2 === 0 ? 'md:ml-8' : 'md:mr-8'
@@ -90,7 +62,7 @@ const Projects = () => {
                 style={{ animationDelay: `${index * 200}ms` }}
               >
                 <div className="bg-primary/50 p-6 rounded-lg shadow-lg border border-secondary/20">
-                  <span className="text-secondary text-sm">{project.year}</span>
+                  <span className="text-secondary text-sm">{project.date}</span>
                   <h3 className="text-xl font-bold mb-2">{project.title}</h3>
                   <p className="text-textSecondary mb-4">{project.description}</p>
                   <div className="flex flex-wrap gap-2 mb-4">
@@ -111,6 +83,19 @@ const Projects = () => {
                   >
                     View Project →
                   </a>
+                  <br />
+                  {
+                    project.live && (
+                      <a
+                        href={project.live}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-secondary hover:text-secondary/80 transition-colors"
+                      >
+                        Live Demo →
+                      </a>
+                    )
+                  }
                 </div>
               </div>
             </div> 
