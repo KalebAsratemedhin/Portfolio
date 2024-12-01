@@ -42,7 +42,7 @@ const Skills = () => {
       <div className="max-w-[1000px] mx-auto p-4 flex flex-col justify-center w-full h-full">
         <div>
           <p className="section-title text-4xl font-bold">Skills</p>
-          <p className="py-4 text-textSecondary text-2xl">These are the technologies I've worked with</p>
+          <p className="py-4 text-textSecondary text-2xl">These are the technologies I&apos;ve worked with</p>
         </div>
 
         {skillCategories.map((category, categoryIndex) => (

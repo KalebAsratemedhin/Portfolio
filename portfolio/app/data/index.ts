@@ -1,5 +1,3 @@
-import { SkillCategory } from "./types";
-
 export const projects = [
     { 
       id: 1,

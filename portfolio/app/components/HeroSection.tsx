@@ -31,8 +31,8 @@ const HeroSection = () => {
             />
           </h2>
           <p className="text-textSecondary py-4 max-w-[700px] animate-slide-in" style={{ animationDelay: '400ms' }}>
-            I'm a full-stack developer specializing in building exceptional digital experiences.
-            Currently, I'm focused on building responsive full-stack web applications.
+            I&apos;m a full-stack developer specializing in building exceptional digital experiences.
+            Currently, I&apos;m focused on building responsive full-stack web applications.
           </p>
           
           <div className="flex gap-4 animate-slide-in" style={{ animationDelay: '600ms' }}>

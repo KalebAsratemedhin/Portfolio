@@ -27,7 +27,7 @@ const Contact = () => {
             placeholder="Message"
           ></textarea>
           <button className="btn-primary my-8 mx-auto flex items-center">
-            Let's Collaborate
+            Let&apos;s Collaborate
           </button>
         </form>
 

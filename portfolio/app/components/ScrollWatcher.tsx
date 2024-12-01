@@ -3,14 +3,12 @@ import { useEffect, useState } from 'react';
 
 export default function ScrollWatcher() {
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
       const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
       const progress = (window.scrollY / totalHeight) * 100;
       setScrollProgress(progress);
-      setIsVisible(window.scrollY > 300);
     };
 
     window.addEventListener('scroll', handleScroll);
