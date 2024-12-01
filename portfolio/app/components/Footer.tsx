@@ -8,39 +8,12 @@ const Footer = () => {
         <div className="col-span-1 flex flex-col items-start">     
           <img src="/logo-one-line-inverse.png" className="" width={650} alt="logo" />
         </div>
-
-        <div className="col-span-1">
-          <h3 className="font-semibold mb-4">Quick Links</h3>
-          <ul className="space-y-2 text-gray-300">
-            <li>
-              <Link href="/about" className="hover:text-red-400">
-                About Us
-              </Link>
-            </li>
-            <li>
-              <Link href="/services" className="hover:text-red-400">
-                Our Services
-              </Link>
-            </li>
-            <li>
-              <Link href="/contact-us" className="hover:text-red-400">
-                Contact Us
-              </Link>
-            </li>
-            <li>
-              <Link href="/faq" className="hover:text-red-400">
-                FAQ
-              </Link>
-            </li>
-          </ul>
-        </div>
-
         <div className="col-span-1">
           <h3 className="font-semibold mb-4">Contact me</h3>
           <ul className="space-y-2 text-gray-300">
-            <li>Phone: +251 996304541</li>
-            <li>Email: risekab@gmail.com</li>
-            <li>Address: King George IV Street, Addis Ababa, Ethiopia</li>
+            <li>+251 996304541</li>
+            <li>risekab@gmail.com</li>
+            <li>King George IV Street, Addis Ababa, Ethiopia</li>
           </ul>
         </div>
 

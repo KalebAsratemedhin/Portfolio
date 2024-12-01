@@ -3,24 +3,64 @@
 @tailwind utilities;
 
 
-
-
 .cloud {
   clip-path: path("M 120 200 C 120 90, 250 40, 400 50 C 750 80, 500 500, 370 500 C 300 500, 135 400, 120 195  Z");
 }
 
 
-
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* --background: #0a0a0a;
-    --foreground: #ededed; */
+@keyframes slide-right{
+  0% {
+    transform: translateX(-100px);
   }
+  100% {
+    transform: translateX(200px);
+  }
+
 }
 
-body {
-  /* color: var(--foreground);
-  background: var(--background); */
-  font-family: Arial, Helvetica, sans-serif;
+/* @keyframes slideIn{
+  0% { 
+    opacity: 0;
+    transform: translateY(90px)
+  }
+  100% { 
+    opacity: 1;
+    transform: translateY(0)
+  }
+    
+} */
+
+
+
+.slide-to-right{
+  
+  animation: slide-right 1s linear;
+  animation-timeline: scroll();
+}
+
+  
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(to bottom, #3b82f6 50%, transparent 50%);
+  background-size: 2px 20px;
+}
+
+
+
+
+.dot {
+  position: absolute;
+  left: -80px;
+  top: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #3b82f6;
+  border: 2px solid #1f2937;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
 }
