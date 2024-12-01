@@ -9,14 +9,14 @@ export const projects = [
     },
     {
       title: 'AutoFlash',
-      description: 'A detailed description of project 2. Highlight the key features and your role in development.',
-      technologies: ['Next.js', 'TypeScript', 'PostgreSQL'],
+      description: ' AutoFlash is a car rental platform. It provides a capability for users to rent cars from anywhere and even payfor it. It also alows admins to track rents in easily and visualize their income and customer base.',
+      technologies: ['Next.js', 'TypeScript', 'MongoDB', 'Tailwind CSS'],
       date: '2023',
     },
     {
       title: 'SkillTrade',
-      description: 'A detailed description of project 3. Mention the impact and results of your work.',
-      technologies: ['Python', 'Django', 'AWS'],
+      description: 'SkillTrade is a platform to connect skilled handy-people with customers. It provides an opportunity for people to use their technical skills to make money and create a difference.',
+      technologies: ['Python', 'Django', 'Next.js', 'PostgreSQL'],
       date: '2022',
     },
   ];
@@ -48,12 +48,56 @@ export const projects = [
     {
         title: "AI/ML",
         skills: [
-            { name: "TensorFlow", percentage: 75, icon: "🧠" },
             { name: "PyTorch", percentage: 70, icon: "🔥" },
             { name: "Scikit-learn", percentage: 80, icon: "🤖" },
-            { name: "OpenCV", percentage: 75, icon: "👁️" },
             { name: "Pandas", percentage: 85, icon: "🐼" },
             { name: "NumPy", percentage: 85, icon: "📊" },
         ]
     }
 ];
+
+export const skillSections = [
+  {
+      title: "Frontend Development",
+      icon: "🎨",
+      skills: [
+          "React/Next.js",
+          "TypeScript",
+          "Tailwind CSS",
+          "HTML5/CSS3",
+          "Responsive Design",
+          "UI/UX Principles"
+      ],
+      bgColor: "bg-blue-100",
+      iconBg: "bg-blue-200"
+  },
+  {
+      title: "Backend Development",
+      icon: "⚙️",
+      skills: [
+          "Node.js",
+          "Python",
+          "RESTful APIs",
+          "Database Design",
+          "Server Architecture",
+          "Cloud Services"
+      ],
+      bgColor: "bg-green-100",
+      iconBg: "bg-green-200"
+  },
+  {
+      title: "AI/ML",
+      icon: "🤖",
+      skills: [
+          "Machine Learning",
+          "Deep Learning",
+          "Natural Language Processing",
+          "Computer Vision",
+          "Data Analysis",
+          "Neural Networks"
+      ],
+      bgColor: "bg-purple-100",
+      iconBg: "bg-purple-200"
+  }
+];
+

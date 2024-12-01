@@ -1,5 +1,5 @@
 import Footer from "../components/Footer";
-import Header from "../components/Header";
+import Navbar from "../components/Navbar";
 
 export default function RootLayout({
   children,
@@ -9,10 +9,13 @@ export default function RootLayout({
   return (
     <div lang="en" className="">
       
-        <div className="relative">
-            <Header />
-        </div>
+        {/* <div className="relative"> */}
+            {/* <Header /> */}
+            <Navbar />
+        {/* </div> */}
+        <div className="min-h-screen">
         {children}
+        </div>
         <Footer />
 
     </div>
