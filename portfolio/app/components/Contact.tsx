@@ -30,6 +30,14 @@ const Contact = () => {
             Let's Collaborate
           </button>
         </form>
+
+        <a
+        href="/resume-vl.pdf"
+        download="Kaleb_Resume.pdf"
+        className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-all duration-300"
+      >
+        Download Resume
+      </a>
       </div>
     );
   };
