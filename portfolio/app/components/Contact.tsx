@@ -32,7 +32,7 @@ const Contact = () => {
         </form>
 
         <a
-        href="/resume-vl.pdf"
+        href="/Resume-vl.pdf"
         download="Kaleb_Resume.pdf"
         className="bg-[#1a1a1a] hover:border-[#646cff] border border-[#64ffda] text-white font-bold py-3 px-6 rounded-lg shadow-md transition-all duration-300"
       >
