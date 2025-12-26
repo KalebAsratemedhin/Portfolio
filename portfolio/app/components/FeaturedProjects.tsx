@@ -1,105 +1,206 @@
 'use client'
-
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { projects } from "../data";
+import { FaGithub, FaExternalLinkAlt } from 'react-icons/fa';
 
 const Projects = () => {
-  
+  const [activeProjectIndex, setActiveProjectIndex] = useState(0);
+  const projectRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  const sectionRef = useRef<HTMLDivElement>(null);
-
-
+  // Set up Intersection Observer to track which project is in view
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          
-            if (entry.isIntersecting){
-              entry.target.classList.add("animate-slide-in")
-            } 
-            else {
-              entry.target.classList.remove("animate-slide-in")
-            }
-          
+          if (entry.isIntersecting) {
+            const index = parseInt(entry.target.getAttribute('data-project-index') || '0');
+            setActiveProjectIndex(index);
+          }
         });
       },
-      { threshold: 0.5 } 
+      { 
+        threshold: 0.5, // Trigger when 50% of the section is visible
+        rootMargin: '-20% 0px -20% 0px' // Only trigger when section is in the middle portion of viewport
+      }
     );
 
-    const section = sectionRef.current;
-    const items = section?.querySelectorAll(".slide-in-item");
-    items?.forEach((item: Element) => observer.observe(item));
+    // Observe all project sections
+    projectRefs.current.forEach((ref) => {
+      if (ref) observer.observe(ref);
+    });
 
     return () => {
-      items?.forEach((item: Element) => observer.unobserve(item));
+      projectRefs.current.forEach((ref) => {
+        if (ref) observer.unobserve(ref);
+      });
     };
   }, []);
 
+  const ProjectDemo = ({ project, index, isActive }: { project: typeof projects[0]; index: number; isActive: boolean }) => {
+    
+    return (
+      <div 
+        className={`w-full transition-all duration-700 ${
+          isActive 
+            ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto' 
+            : 'opacity-0 scale-95 translate-y-4 pointer-events-none absolute'
+        }`}
+      >
+        <div className="w-full group h-full">
+          <div className="h-64 md:h-80 lg:h-96 rounded-2xl overflow-hidden border border-border/50 shadow-2xl relative">
+            {/* Placeholder gradient background */}
+            <div className="absolute inset-0 bg-gradient-to-br from-warm-brown/30 via-warm-tan/20 to-warm-brown/30"></div>
+            
+            {/* Mock browser window */}
+            <div className="relative z-10 flex flex-col h-full">
+              <div className="h-8 bg-bgPrimary/80 backdrop-blur-sm border-b border-border/50 flex items-center gap-2 px-3">
+                <div className="flex gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-red-400/50"></div>
+                  <div className="w-3 h-3 rounded-full bg-yellow-400/50"></div>
+                  <div className="w-3 h-3 rounded-full bg-green-400/50"></div>
+                </div>
+                <div className="flex-1 mx-4 h-5 bg-bgSecondary rounded text-xs text-textTertiary flex items-center px-2 text-center">
+                  {project.live || 'localhost:3000'}
+                </div>
+              </div>
+              <div className="flex-1 bg-bgPrimary/40 backdrop-blur-sm flex items-center justify-center">
+                <div className="text-center p-8">
+                  <div className="w-20 h-20 mx-auto mb-4 bg-warm-brown/20 rounded-lg flex items-center justify-center">
+                    <span className="text-4xl text-textPrimary">{project.title.charAt(0)}</span>
+                  </div>
+                  <p className="text-textSecondary text-sm font-light">{project.title}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Action buttons overlay */}
+            <div className="absolute inset-0 z-20 bg-warm-brown/10 backdrop-blur-sm opacity-0 hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
+              <div className="flex gap-4">
+                {project.live && (
+                  <a
+                    href={project.live}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-6 py-3 bg-bgPrimary/90 backdrop-blur-md border border-border rounded-lg text-textPrimary hover:bg-accent hover:text-bgPrimary transition-all duration-300 flex items-center gap-2"
+                  >
+                    <FaExternalLinkAlt size={16} />
+                    <span className="text-sm font-light">View Live</span>
+                  </a>
+                )}
+                <a
+                  href={project.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-6 py-3 bg-bgPrimary/90 backdrop-blur-md border border-border rounded-lg text-textPrimary hover:bg-accent hover:text-bgPrimary transition-all duration-300 flex items-center gap-2"
+                >
+                  <FaGithub size={16} />
+                  <span className="text-sm font-light">View Code</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* Decorative elements */}
+          <div className="absolute -z-10 -inset-4 bg-gradient-to-r from-warm-brown/20 to-warm-tan/20 rounded-2xl blur-xl opacity-50 group-hover:opacity-100 transition-opacity duration-500"></div>
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div ref={sectionRef} id="portfolio" className="w-full min-h-screen bg-primary text-textPrimary py-20">
-      <div className="max-w-[1000px] mx-auto p-4">
-        <div className="pb-8">
-          <p className="section-title text-4xl font-bold">Projects</p>
-          <p className="text-textSecondary text-2xl">Check out some of my recent work</p>
+    <div id="portfolio" className="relative w-full bg-bgSecondary bg-texture">
+      {/* Animated background elements */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-warm-brown/10 rounded-full blur-3xl animate-float"></div>
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-warm-tan/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
+        <div className="text-center mb-20 animate-fade-in-up">
+          <span className="text-textSecondary text-sm uppercase tracking-widest font-light">04. Projects</span>
+          <h2 className="section-title mt-4">Featured Work</h2>
+          <p className="text-textSecondary mt-4 font-light">Check out some of my recent work</p>
         </div>
 
-        <div className="relative">
-          <div className="absolute left-0 md:left-1/2 transform -translate-x-1/2 h-full w-0.5 bg-secondary/30"></div>
+        {/* Fixed Demo Images Container - Left side, centered vertically in viewport */}
+        <div 
+         className="flex flex-row md:flex-row gap-12"
+        >
+          <div className="w-1/2 sticky top-1/3 self-start relative" style={{ minHeight: '400px' }}>
+            {projects.map((project, index) => (
+              <ProjectDemo 
+                key={`demo-${project.id}`}
+                project={project} 
+                index={index}
+                isActive={activeProjectIndex === index}
+              />
+            ))} 
+          </div>
 
+        {/* Scrollable Content Sections - Right side */}
+        <div className="w-1/2">
           {projects.map((project, index) => (
             <div
               key={project.id}
-              className={`slide-in-item relative flex md:justify-between items-start mb-16 ${
-                index % 2 === 0 ? 'md:flex-row-reverse' : ''
-              }`}
+              ref={(el) => {
+                projectRefs.current[index] = el;
+              }}
+              data-project-index={index}
+              className="min-h-screen flex items-center "
             >
-              <div className="absolute left-0 md:left-1/2 transform -translate-x-1/2 w-4 h-4 bg-secondary rounded-full"></div>
+              <div className="w-full">
+                <div className="space-y-6">
+                  <div>
+                    <span className="text-accent text-sm font-light uppercase tracking-wider">
+                      Featured Project {index + 1}
+                    </span>
+                    <h3 className="text-3xl md:text-4xl font-light text-textPrimary mt-2 mb-4">
+                      {project.title}
+                    </h3>
+                  </div>
 
-              <div
-                className={`ml-8 md:ml-0 md:w-5/12 ${
-                  index % 2 === 0 ? 'md:ml-8' : 'md:mr-8'
-                } animate-slide-in`}
-                style={{ animationDelay: `${index * 200}ms` }}
-              >
-                <div className="bg-primary/50 p-6 rounded-lg shadow-lg border border-secondary/20">
-                  <span className="text-secondary text-sm">{project.date}</span>
-                  <h3 className="text-xl font-bold mb-2">{project.title}</h3>
-                  <p className="text-textSecondary mb-4">{project.description}</p>
-                  <div className="flex flex-wrap gap-2 mb-4">
+                  <div className="glass-card">
+                    <p className="text-textSecondary leading-relaxed text-base font-light">
+                      {project.description}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
                     {project.tech.map((tech, i) => (
                       <span
                         key={i}
-                        className="text-xs px-2 py-1 rounded-full bg-secondary/10 text-secondary"
+                        className="px-4 py-2 text-xs border border-border/50 bg-bgPrimary/50 text-textSecondary font-light rounded-full backdrop-blur-sm transition-all duration-300 hover:border-accent/50 hover:text-accent"
                       >
                         {tech}
                       </span>
                     ))}
                   </div>
-                  <a
-                    href={project.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-secondary hover:text-secondary/80 transition-colors"
-                  >
-                    View Project →
-                  </a>
-                  <br />
-                  {
-                    project.live && (
+
+                  <div className="flex gap-4">
+                    <a
+                      href={project.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-textSecondary hover:text-accent transition-all duration-300 group/link"
+                    >
+                      <FaGithub className="group-hover/link:scale-110 transition-transform duration-300" size={20} />
+                      <span className="text-sm font-light">GitHub</span>
+                    </a>
+                    {project.live && (
                       <a
                         href={project.live}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-secondary hover:text-secondary/80 transition-colors"
-                      >
-                        Live Demo →
+                        className="flex items-center gap-2 text-textSecondary hover:text-accent transition-all duration-300 group/link"
+                        >
+                        <FaExternalLinkAlt className="group-hover/link:scale-110 transition-transform duration-300" size={20} />
+                        <span className="text-sm font-light">Live Demo</span>
                       </a>
-                    )
-                  }
+                    )}
+                  </div>
                 </div>
               </div>
-            </div> 
+            </div>
           ))}
+          </div>
         </div>
       </div>
     </div>

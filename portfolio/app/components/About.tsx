@@ -1,31 +1,83 @@
+'use client'
+import { useEffect, useRef } from 'react';
+
 const About = () => {
-    return (
-      <div id="about" className="w-full h-screen bg-primary text-textPrimary">
-        <div className="flex flex-col justify-center items-center w-full h-full">
-          <div className="max-w-[1000px] w-full grid grid-cols-2 gap-8">
-            <div className="sm:text-right pb-8 pl-4">
-              <p className="section-title text-4xl font-bold">About</p>
-            </div>
-            <div></div>
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate-fade-in-up');
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentRef = sectionRef.current;
+    if (currentRef) {
+      const items = currentRef.querySelectorAll('.fade-in-item');
+      items.forEach((item) => observer.observe(item));
+    }
+
+    return () => {
+      if (currentRef) {
+        const items = currentRef.querySelectorAll('.fade-in-item');
+        items.forEach((item) => observer.unobserve(item));
+      }
+    };
+  }, []);
+
+  return (
+    <div id="about" ref={sectionRef} className="relative w-full min-h-screen py-32 bg-bgSecondary bg-texture overflow-hidden">
+      {/* Animated background */}
+      <div className="absolute top-0 left-0 w-96 h-96 bg-warm-brown/10 rounded-full blur-3xl animate-float"></div>
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-warm-tan/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2.5s' }}></div>
+      
+      <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="space-y-12">
+          <div className="fade-in-item text-center animate-fade-in-up">
+            <span className="text-textSecondary text-sm uppercase tracking-widest font-light">01. About</span>
+            <h2 className="section-title mt-4 text-left md:text-center">
+              About Me
+            </h2>
           </div>
-          <div className="max-w-[1000px] w-full grid sm:grid-cols-2 gap-8 px-4">
-            <div className="sm:text-right text-4xl font-bold animate-slide-in">
-              <p>Hi. I&apos;m Kaleb Asratemedhin, nice to meet you. Please take a look around.</p>
-            </div>
-            <div className="animate-slide-in" style={{ animationDelay: '200ms' }}>
-              <p className="text-textSecondary">
-                I am passionate about building excellent software that improves
-                the lives of those around me. I specialize in creating software
-                for clients ranging from individuals and small-businesses all the
-                way to large enterprise corporations. What would you do if you had
-                a software expert available at your fingertips?
+
+          <div className="grid md:grid-cols-2 gap-12 items-start">
+            <div className="fade-in-item space-y-6 animate-slide-in">
+              <p className="text-textPrimary text-xl md:text-2xl font-light leading-relaxed">
+                Hi. I&apos;m <span className="font-normal text-accent">Kaleb Asratemedhin</span>, a passionate full-stack developer 
+                dedicated to creating exceptional software solutions.
               </p>
+              <div className="w-16 h-px bg-gradient-to-r from-warm-brown to-warm-tan animate-glow"></div>
+            </div>
+
+            <div className="fade-in-item space-y-6" style={{ animationDelay: '200ms' }}>
+              <p className="text-textSecondary leading-relaxed">
+                I am passionate about building excellent software that improves the lives of those around me. 
+                I specialize in creating software for clients ranging from individuals and small-businesses 
+                all the way to large enterprise corporations.
+              </p>
+              <p className="text-textSecondary leading-relaxed">
+                What would you do if you had a software expert available at your fingertips? I bring a unique 
+                combination of technical expertise, creative problem-solving, and a commitment to delivering 
+                solutions that not only meet but exceed expectations.
+              </p>
+              <a 
+                href="/Resume-vl.pdf" 
+                download="Kaleb_Resume.pdf"
+                className="btn-minimal inline-block"
+              >
+                Download Resume
+              </a>
             </div>
           </div>
         </div>
       </div>
-    );
-  };
-  
-  export default About;
-  
+    </div>
+  );
+};
+
+export default About;

@@ -2,63 +2,141 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :root {
+    --bg-primary: #faf8f5;
+    --bg-secondary: #f5f1eb;
+    --text-primary: #0a0a0a;
+    --text-secondary: #1a1a1a;
+    --text-tertiary: #2a2a2a;
+    --border: #d4c4b0;
+    --accent: #8b5a3c;
+    --warm-brown: #a67c52;
+    --warm-tan: #d4a574;
+  }
 
-:root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  [data-theme="dark"] {
+    --bg-primary: #1a1612;
+    --bg-secondary: #252017;
+    --text-primary: #d4d4d4;
+    --text-secondary: #b8b8b8;
+    --text-tertiary: #9a9a9a;
+    --border: #4a3d2e;
+    --accent: #d4a574;
+    --warm-brown: #8b5a3c;
+    --warm-tan: #a67c52;
+  }
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  * {
+    @apply border-border;
+  }
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  body {
+    @apply bg-bgPrimary text-textPrimary;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+    background-image: 
+      radial-gradient(circle at 1px 1px, rgba(0,0,0,0.03) 1px, transparent 0);
+    background-size: 20px 20px;
+  }
+
+  [data-theme="dark"] body {
+    background-image: 
+      radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 0);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(to right, var(--text-primary), var(--text-secondary));
+  }
+
+  .bg-texture {
+    background-image: 
+      repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+  }
+
+  [data-theme="dark"] .bg-texture {
+    background-image: 
+      repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px);
+  }
+
+  .section-title {
+    @apply text-3xl md:text-4xl font-light tracking-tight mb-4;
+  }
+
+  .nav-link {
+    @apply relative text-textSecondary hover:text-textPrimary transition-colors duration-300;
+  }
+
+  .nav-link::after {
+    @apply content-[''] absolute bottom-0 left-0 w-0 h-px bg-textPrimary transition-all duration-300;
+  }
+
+  .nav-link:hover::after {
+    @apply w-full;
+  }
+
+  .btn-minimal {
+    @apply px-6 py-2 border border-border text-textPrimary font-light
+           hover:bg-textPrimary hover:text-bgPrimary transition-all duration-300;
+  }
+
+  .card-minimal {
+    @apply border border-border bg-bgPrimary p-6 transition-all duration-300
+           hover:border-textPrimary;
+  }
+
+  .glass-morphism {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  [data-theme="dark"] .glass-morphism {
+    background: rgba(26, 22, 18, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .glass-card {
+    @apply glass-morphism rounded-xl p-6 shadow-lg;
+  }
+
+  .carousel-scroll {
+    animation: carousel-infinite 20s linear infinite;
+  }
+
+  @keyframes carousel-infinite {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-25%);
+    }
+  }
 }
 
-body {
-  /* margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh; */
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+::-webkit-scrollbar-track {
+  @apply bg-bgSecondary;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  border-color: #64ffda;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+::-webkit-scrollbar-thumb {
+  @apply bg-textTertiary;
 }
 
-
-
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-textSecondary;
+}
