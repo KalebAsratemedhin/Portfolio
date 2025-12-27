@@ -1,14 +1,39 @@
 'use client'
 import { useEffect, useRef, useState } from "react";
-import { projects } from "../data";
 import { FaGithub, FaExternalLinkAlt } from 'react-icons/fa';
+import { Project } from "../types/project";
+import { getProjects } from "../lib/projects";
 
 const Projects = () => {
   const [activeProjectIndex, setActiveProjectIndex] = useState(0);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const projectRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  // Fetch projects from Supabase
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        setLoading(true);
+        const data = await getProjects();
+        setProjects(data);
+        setError(null);
+      } catch (err) {
+        console.error('Failed to fetch projects:', err);
+        setError('Failed to load projects. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, []);
 
   // Set up Intersection Observer to track which project is in view
   useEffect(() => {
+    if (projects.length === 0) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -34,9 +59,9 @@ const Projects = () => {
         if (ref) observer.unobserve(ref);
       });
     };
-  }, []);
+  }, [projects]);
 
-  const ProjectDemo = ({ project, index, isActive }: { project: typeof projects[0]; index: number; isActive: boolean }) => {
+  const ProjectDemo = ({ project, index, isActive }: { project: Project; index: number; isActive: boolean }) => {
     
     return (
       <div 
@@ -60,25 +85,33 @@ const Projects = () => {
                   <div className="w-3 h-3 rounded-full bg-green-400/50"></div>
                 </div>
                 <div className="flex-1 mx-4 h-5 bg-bgSecondary rounded text-xs text-textTertiary flex items-center px-2 text-center">
-                  {project.live || 'localhost:3000'}
+                  {project.demo_link || 'localhost:3000'}
                 </div>
               </div>
-              <div className="flex-1 bg-bgPrimary/40 backdrop-blur-sm flex items-center justify-center">
-                <div className="text-center p-8">
-                  <div className="w-20 h-20 mx-auto mb-4 bg-warm-brown/20 rounded-lg flex items-center justify-center">
-                    <span className="text-4xl text-textPrimary">{project.title.charAt(0)}</span>
+              <div className="flex-1 bg-bgPrimary/40 backdrop-blur-sm flex items-center justify-center relative overflow-hidden">
+                {project.demo_image_url ? (
+                  <img 
+                    src={project.demo_image_url} 
+                    alt={project.title} 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="text-center p-8">
+                    <div className="w-20 h-20 mx-auto mb-4 bg-warm-brown/20 rounded-lg flex items-center justify-center">
+                      <span className="text-4xl text-textPrimary">{project.title.charAt(0)}</span>
+                    </div>
+                    <p className="text-textSecondary text-sm font-light">{project.title}</p>
                   </div>
-                  <p className="text-textSecondary text-sm font-light">{project.title}</p>
-                </div>
+                )}
               </div>
             </div>
 
             {/* Action buttons overlay */}
             <div className="absolute inset-0 z-20 bg-warm-brown/10 backdrop-blur-sm opacity-0 hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
               <div className="flex gap-4">
-                {project.live && (
+                {project.demo_link && (
                   <a
-                    href={project.live}
+                    href={project.demo_link}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="px-6 py-3 bg-bgPrimary/90 backdrop-blur-md border border-border rounded-lg text-textPrimary hover:bg-accent hover:text-bgPrimary transition-all duration-300 flex items-center gap-2"
@@ -88,7 +121,7 @@ const Projects = () => {
                   </a>
                 )}
                 <a
-                  href={project.link}
+                  href={project.github_link}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-6 py-3 bg-bgPrimary/90 backdrop-blur-md border border-border rounded-lg text-textPrimary hover:bg-accent hover:text-bgPrimary transition-all duration-300 flex items-center gap-2"
@@ -120,63 +153,83 @@ const Projects = () => {
           <p className="text-textSecondary mt-4 font-light">Check out some of my recent work</p>
         </div>
 
-        {/* Fixed Demo Images Container - Left side, centered vertically in viewport */}
-        <div 
-         className="flex flex-row md:flex-row gap-12"
-        >
-          <div className="w-1/2 sticky top-1/3 self-start relative" style={{ minHeight: '400px' }}>
-            {projects.map((project, index) => (
-              <ProjectDemo 
-                key={`demo-${project.id}`}
-                project={project} 
-                index={index}
-                isActive={activeProjectIndex === index}
-              />
-            ))} 
+        {loading && (
+          <div className="text-center py-20">
+            <p className="text-textSecondary font-light">Loading projects...</p>
           </div>
+        )}
 
-        {/* Scrollable Content Sections - Right side */}
-        <div className="w-1/2">
-          {projects.map((project, index) => (
-            <div
-              key={project.id}
-              ref={(el) => {
-                projectRefs.current[index] = el;
-              }}
-              data-project-index={index}
-              className="min-h-screen flex items-center "
+        {error && (
+          <div className="text-center py-20">
+            <p className="text-red-400 font-light">{error}</p>
+          </div>
+        )}
+
+        {!loading && !error && projects.length === 0 && (
+          <div className="text-center py-20">
+            <p className="text-textSecondary font-light">No projects found.</p>
+          </div>
+        )}
+
+        {!loading && !error && projects.length > 0 && (
+          <>
+            {/* Fixed Demo Images Container - Left side, centered vertically in viewport */}
+            <div 
+             className="flex flex-row md:flex-row gap-12"
             >
-              <div className="w-full">
-                <div className="space-y-6">
-                  <div>
-                    <span className="text-accent text-sm font-light uppercase tracking-wider">
-                      Featured Project {index + 1}
-                    </span>
-                    <h3 className="text-3xl md:text-4xl font-light text-textPrimary mt-2 mb-4">
-                      {project.title}
-                    </h3>
-                  </div>
+              <div className="w-1/2 sticky top-1/3 self-start relative" style={{ minHeight: '400px' }}>
+                {projects.map((project, index) => (
+                  <ProjectDemo 
+                    key={`demo-${project.id}`}
+                    project={project} 
+                    index={index}
+                    isActive={activeProjectIndex === index}
+                  />
+                ))} 
+              </div>
 
-                  <div className="glass-card">
-                    <p className="text-textSecondary leading-relaxed text-base font-light">
-                      {project.description}
-                    </p>
-                  </div>
+              {/* Scrollable Content Sections - Right side */}
+              <div className="w-1/2">
+                {projects.map((project, index) => (
+                  <div
+                    key={project.id}
+                    ref={(el) => {
+                      projectRefs.current[index] = el;
+                    }}
+                    data-project-index={index}
+                    className="min-h-screen flex items-center "
+                  >
+                    <div className="w-full">
+                      <div className="space-y-6">
+                        <div>
+                          <span className="text-accent text-sm font-light uppercase tracking-wider">
+                            Featured Project {index + 1}
+                          </span>
+                          <h3 className="text-3xl md:text-4xl font-light text-textPrimary mt-2 mb-4">
+                            {project.title}
+                          </h3>
+                        </div>
+
+                        <div className="glass-card">
+                          <p className="text-textSecondary leading-relaxed text-base font-light">
+                            {project.description}
+                          </p>
+                        </div>
 
                   <div className="flex flex-wrap gap-2">
-                    {project.tech.map((tech, i) => (
+                    {project.tags.map((tag, i) => (
                       <span
                         key={i}
                         className="px-4 py-2 text-xs border border-border/50 bg-bgPrimary/50 text-textSecondary font-light rounded-full backdrop-blur-sm transition-all duration-300 hover:border-accent/50 hover:text-accent"
                       >
-                        {tech}
+                        {tag}
                       </span>
                     ))}
                   </div>
 
                   <div className="flex gap-4">
                     <a
-                      href={project.link}
+                      href={project.github_link}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 text-textSecondary hover:text-accent transition-all duration-300 group/link"
@@ -184,9 +237,9 @@ const Projects = () => {
                       <FaGithub className="group-hover/link:scale-110 transition-transform duration-300" size={20} />
                       <span className="text-sm font-light">GitHub</span>
                     </a>
-                    {project.live && (
+                    {project.demo_link && (
                       <a
-                        href={project.live}
+                        href={project.demo_link}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 text-textSecondary hover:text-accent transition-all duration-300 group/link"
@@ -196,12 +249,14 @@ const Projects = () => {
                       </a>
                     )}
                   </div>
-                </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-          ))}
-          </div>
-        </div>
+          </>
+        )}
       </div>
     </div>
   );

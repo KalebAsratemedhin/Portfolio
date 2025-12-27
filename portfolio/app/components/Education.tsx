@@ -1,32 +1,36 @@
 'use client'
 import { useEffect, useRef, useState } from 'react';
+import { getEducations } from '../lib/experiences';
+import { Experience } from '../types/experience';
 
 const Education = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const [visibleItems, setVisibleItems] = useState<Set<number>>(new Set());
-
-  const education = [
-    {
-      id: 1,
-      title: 'Bachelor of Science',
-      subtitle: 'Computer Science',
-      organization: 'Your University',
-      location: 'City, Country',
-      period: '2020 - 2024',
-      description: 'Focused on software engineering, algorithms, and data structures. Specialized in web development and AI.',
-    },
-    {
-      id: 2,
-      title: 'High School Diploma',
-      subtitle: 'Science & Technology',
-      organization: 'Your High School',
-      location: 'City, Country',
-      period: '2016 - 2020',
-      description: 'Graduated with honors. Participated in programming competitions and tech clubs.',
-    },
-  ];
+  const [education, setEducation] = useState<Experience[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const fetchEducation = async () => {
+      try {
+        setLoading(true);
+        const data = await getEducations();
+        setEducation(data);
+        setError(null);
+      } catch (err) {
+        console.error('Failed to fetch education:', err);
+        setError('Failed to load education. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEducation();
+  }, []);
+
+  useEffect(() => {
+    if (education.length === 0) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -54,7 +58,7 @@ const Education = () => {
         items.forEach((item) => observer.unobserve(item));
       }
     };
-  }, []);
+  }, [education]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -96,75 +100,101 @@ const Education = () => {
           {/* Animated Timeline line (on top of static line) */}
           <div className="absolute left-8 md:left-1/2 transform md:-translate-x-1/2 w-0.5 timeline-line bg-gradient-to-b from-warm-brown via-warm-tan to-warm-brown transition-all duration-1000 ease-out z-[1]" style={{ height: '0%' }}></div>
 
-          <div className="space-y-16">
-            {education.map((item, index) => {
-              const isVisible = visibleItems.has(item.id);
-              const delay = index * 150;
-              
-              return (
-                <div
-                  key={item.id}
-                  data-item-id={item.id}
-                  className={`timeline-item relative flex items-start ${
-                    index % 2 === 0 ? 'md:flex-row-reverse' : ''
-                  }`}
-                >
-                  {/* Animated Timeline dot */}
-                  <div className={`absolute left-8 md:left-1/2 transform -translate-x-1/2 w-6 h-6 rounded-full z-10 transition-all duration-700 ${
-                    isVisible 
-                      ? 'bg-accent scale-100 shadow-lg shadow-accent/50' 
-                      : 'bg-border scale-50'
-                  }`}>
-                    <div className={`absolute inset-0 rounded-full bg-accent/30 animate-ping ${
-                      isVisible ? 'opacity-100' : 'opacity-0'
-                    }`}></div>
-                  </div>
+          {loading && (
+            <div className="text-center py-20">
+              <p className="text-textSecondary font-light">Loading education...</p>
+            </div>
+          )}
 
-                  {/* Content with scroll animations */}
-                  <div className={`ml-16 md:ml-0 md:w-5/12 transition-all duration-700 ${
-                    index % 2 === 0 ? 'md:mr-8 md:text-right' : 'md:ml-8'
-                  } ${
-                    isVisible 
-                      ? 'opacity-100 translate-y-0' 
-                      : 'opacity-0 translate-y-8'
-                  }`}
-                  style={{ transitionDelay: `${delay}ms` }}
+          {error && (
+            <div className="text-center py-20">
+              <p className="text-red-400 font-light">{error}</p>
+            </div>
+          )}
+
+          {!loading && !error && education.length === 0 && (
+            <div className="text-center py-20">
+              <p className="text-textSecondary font-light">No education found.</p>
+            </div>
+          )}
+
+          {!loading && !error && education.length > 0 && (
+            <div className="space-y-16">
+              {education.map((item, index) => {
+                const isVisible = visibleItems.has(item.id);
+                const delay = index * 150;
+                const formatDate = (dateStr: string) => {
+                  const date = new Date(dateStr);
+                  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+                };
+                const period = item.to ? `${formatDate(item.from)} - ${formatDate(item.to)}` : `${formatDate(item.from)} - Present`;
+                const location = `${item.city}, ${item.country}`;
+                
+                return (
+                  <div
+                    key={item.id}
+                    data-item-id={item.id}
+                    className={`timeline-item relative flex items-start ${
+                      index % 2 === 0 ? 'md:flex-row-reverse' : ''
+                    }`}
                   >
-                    <div className={`glass-card group hover:scale-105 transition-all duration-500 ${
-                      isVisible ? 'animate-scale-in' : ''
+                    {/* Animated Timeline dot */}
+                    <div className={`absolute left-8 md:left-1/2 transform -translate-x-1/2 w-6 h-6 rounded-full z-10 transition-all duration-700 ${
+                      isVisible 
+                        ? 'bg-accent scale-100 shadow-lg shadow-accent/50' 
+                        : 'bg-border scale-50'
                     }`}>
-                      <div className="mb-3">
-                        <span className={`text-xs font-light uppercase tracking-wider px-3 py-1 rounded-full transition-all duration-500 bg-warm-tan/20 text-warm-brown border border-warm-brown/30 ${
-                          isVisible ? 'scale-100' : 'scale-0'
-                        }`}
-                        style={{ transitionDelay: `${delay + 100}ms` }}
-                        >
-                          Education
-                        </span>
-                      </div>
-                      <h3 className={`text-xl md:text-2xl font-light text-textPrimary mb-2 group-hover:text-accent transition-colors duration-300 ${
-                        isVisible ? 'translate-x-0' : index % 2 === 0 ? 'translate-x-8' : '-translate-x-8'
-                      }`}
-                      style={{ transitionDelay: `${delay + 200}ms` }}
-                      >
-                        {item.title}
-                      </h3>
-                      <p className="text-textSecondary font-light mb-2">{item.subtitle}</p>
-                      <p className="text-textTertiary text-sm mb-2">{item.organization} • {item.location}</p>
-                      <p className="text-textTertiary text-xs font-light mb-4">{item.period}</p>
-                      <p className={`text-textSecondary leading-relaxed text-sm font-light transition-all duration-700 ${
+                      <div className={`absolute inset-0 rounded-full bg-accent/30 animate-ping ${
                         isVisible ? 'opacity-100' : 'opacity-0'
-                      }`}
-                      style={{ transitionDelay: `${delay + 300}ms` }}
-                      >
-                        {item.description}
-                      </p>
+                      }`}></div>
+                    </div>
+
+                    {/* Content with scroll animations */}
+                    <div className={`ml-16 md:ml-0 md:w-5/12 transition-all duration-700 ${
+                      index % 2 === 0 ? 'md:mr-8 md:text-right' : 'md:ml-8'
+                    } ${
+                      isVisible 
+                        ? 'opacity-100 translate-y-0' 
+                        : 'opacity-0 translate-y-8'
+                    }`}
+                    style={{ transitionDelay: `${delay}ms` }}
+                    >
+                      <div className={`glass-card group hover:scale-105 transition-all duration-500 ${
+                        isVisible ? 'animate-scale-in' : ''
+                      }`}>
+                        <div className="mb-3">
+                          <span className={`text-xs font-light uppercase tracking-wider px-3 py-1 rounded-full transition-all duration-500 bg-warm-tan/20 text-warm-brown border border-warm-brown/30 ${
+                            isVisible ? 'scale-100' : 'scale-0'
+                          }`}
+                          style={{ transitionDelay: `${delay + 100}ms` }}
+                          >
+                            Education
+                          </span>
+                        </div>
+                        <h3 className={`text-xl md:text-2xl font-light text-textPrimary mb-2 group-hover:text-accent transition-colors duration-300 ${
+                          isVisible ? 'translate-x-0' : index % 2 === 0 ? 'translate-x-8' : '-translate-x-8'
+                        }`}
+                        style={{ transitionDelay: `${delay + 200}ms` }}
+                        >
+                          {item.title}
+                        </h3>
+                        <p className="text-textSecondary font-light mb-2">{item.company_name}</p>
+                        <p className="text-textTertiary text-sm mb-2">{location}</p>
+                        <p className="text-textTertiary text-xs font-light mb-4">{period}</p>
+                        <p className={`text-textSecondary leading-relaxed text-sm font-light transition-all duration-700 ${
+                          isVisible ? 'opacity-100' : 'opacity-0'
+                        }`}
+                        style={{ transitionDelay: `${delay + 300}ms` }}
+                        >
+                          {item.description}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </div>

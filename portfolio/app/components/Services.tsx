@@ -31,7 +31,7 @@ const Services = () => {
       if (!sectionRef.current) return;
 
       const windowHeight = window.innerHeight;
-      const viewportCenter = 5 * windowHeight ;
+      const viewportCenter = windowHeight / 2;
 
       // Calculate progress for each card
       const newProgress: Record<number, number> = {};
