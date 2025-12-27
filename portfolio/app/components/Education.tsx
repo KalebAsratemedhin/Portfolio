@@ -86,12 +86,15 @@ const Education = () => {
           <p className="text-textSecondary mt-4 font-light">My academic journey</p>
         </div>
 
-        <div className="relative timeline-container">
-          {/* Animated Timeline line */}
-          <div className="absolute left-8 md:left-1/2 transform md:-translate-x-1/2 w-0.5 timeline-line bg-gradient-to-b from-warm-brown via-warm-tan to-warm-brown transition-all duration-1000 ease-out" style={{ height: '0%' }}></div>
+        <div className="relative timeline-container min-h-full">
+          {/* Static timeline track - Brown vertical line (behind everything) */}
+          <div 
+            className="absolute left-8 md:left-1/2 transform -translate-x-1/2 top-0 bottom-0 w-1 z-0"
+            style={{ backgroundColor: 'var(--warm-brown)' }}
+          ></div>
           
-          {/* Static timeline track */}
-          <div className="absolute left-8 md:left-1/2 transform md:-translate-x-1/2 h-full w-0.5 bg-border/30"></div>
+          {/* Animated Timeline line (on top of static line) */}
+          <div className="absolute left-8 md:left-1/2 transform md:-translate-x-1/2 w-0.5 timeline-line bg-gradient-to-b from-warm-brown via-warm-tan to-warm-brown transition-all duration-1000 ease-out z-[1]" style={{ height: '0%' }}></div>
 
           <div className="space-y-16">
             {education.map((item, index) => {

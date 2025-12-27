@@ -18,13 +18,22 @@ const HeroSection = () => {
   };
 
   return (
-    <div id="home" className="relative w-full min-h-screen flex items-center justify-center overflow-hidden bg-texture">
+    <div id="home" className="relative w-full min-h-screen flex items-center justify-center overflow-hidden bg-texture page-container">
+      {/* Paper texture overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-warm-brown/5 via-transparent to-warm-tan/5 pointer-events-none z-0"></div>
+      <div className="absolute inset-0 opacity-30 z-0" style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+      }}></div>
+      
+      {/* Page shadow for depth */}
+      <div className="absolute inset-0 shadow-[inset_0_0_40px_rgba(0,0,0,0.03)] pointer-events-none z-0"></div>
+      
       {/* Animated background elements */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-warm-brown/10 rounded-full blur-3xl animate-float"></div>
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-warm-tan/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '3s' }}></div>
       <div className="absolute inset-0 bg-bgSecondary/20"></div>
       
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 z-10">
         <div className="flex flex-col md:flex-row items-center justify-between gap-12">
           <div className="flex-1 space-y-8 animate-fade-in-up text-center md:text-left">
             <div className="space-y-4">
@@ -80,11 +89,6 @@ const HeroSection = () => {
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Scroll indicator */}
-      <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 animate-bounce">
-        <div className="w-px h-12 bg-textSecondary"></div>
       </div>
     </div>
   );

@@ -1,86 +1,152 @@
 'use client'
-import { FaCode, FaServer, FaBrain } from 'react-icons/fa';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const Services = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
+  const [scrollProgress, setScrollProgress] = useState<Record<number, number>>({});
 
   const services = [
     {
       id: 1,
       title: "Frontend Development",
-      icon: <FaCode size={32} />,
-      description: "Creating responsive and intuitive user interfaces using modern frameworks and libraries.",
+      image: "/services/frontend.jpg", // You'll need to add these images
+      description: "Creating responsive and intuitive user interfaces using modern frameworks and libraries. I build beautiful, performant web experiences that users love.",
     },
     {
       id: 2,
       title: "Backend Development",
-      icon: <FaServer size={32} />,
-      description: "Building robust and scalable server-side applications with modern technologies.",
+      image: "/services/backend.jpg", // You'll need to add these images
+      description: "Building robust and scalable server-side applications with modern technologies. Secure, efficient APIs and databases that power your applications.",
     },
     {
       id: 3,
       title: "AI Engineering",
-      icon: <FaBrain size={32} />,
-      description: "Developing intelligent solutions using cutting-edge AI technologies.",
+      image: "/services/ai.jpg", // You'll need to add these images
+      description: "Developing intelligent solutions using cutting-edge AI technologies. From machine learning models to intelligent automation systems.",
     }
   ];
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('animate-fade-in-up');
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
+    const handleScroll = () => {
+      if (!sectionRef.current) return;
 
-    const currentRef = sectionRef.current;
-    if (currentRef) {
-      const items = currentRef.querySelectorAll('.service-item');
-      items.forEach((item) => observer.observe(item));
-    }
+      const windowHeight = window.innerHeight;
+      const viewportCenter = 5 * windowHeight ;
 
-    return () => {
-      if (currentRef) {
-        const items = currentRef.querySelectorAll('.service-item');
-        items.forEach((item) => observer.unobserve(item));
-      }
+      // Calculate progress for each card
+      const newProgress: Record<number, number> = {};
+      
+      services.forEach((service, index) => {
+        const cardElement = sectionRef.current?.querySelector(`[data-service-id="${service.id}"]`) as HTMLElement;
+        if (!cardElement) return;
+
+        const cardRect = cardElement.getBoundingClientRect();
+        const cardCenter = cardRect.top + cardRect.height / 2;
+        
+        // Calculate distance from viewport center
+        const distanceFromCenter = Math.abs(cardCenter - viewportCenter);
+        
+        // Progress: 0 when centered, increases as card moves away from center
+        // Normalize to 0-1 range based on viewport height
+        const progress = Math.min(1, distanceFromCenter / (windowHeight * 0.8));
+        
+        newProgress[service.id] = progress;
+      });
+
+      setScrollProgress(newProgress);
     };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll(); // Initial calculation
+
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
-    <div id="services" ref={sectionRef} className="relative w-full min-h-screen py-32 bg-bgSecondary bg-texture overflow-hidden">
+    <div 
+      id="services" 
+      ref={sectionRef} 
+      className="relative w-full min-h-screen py-32 bg-bgSecondary bg-texture overflow-hidden"
+      style={{ perspective: '1000px' }}
+    >
       {/* Animated background */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-warm-tan/10 rounded-full blur-3xl animate-float"></div>
       
-      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16 animate-fade-in-up">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-20 animate-fade-in-up">
           <span className="text-textSecondary text-sm uppercase tracking-widest font-light">05. Services</span>
           <h2 className="section-title mt-4">What I Do</h2>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {services.map((service, index) => (
-            <div
-              key={service.id}
-              className="service-item glass-card text-center group hover:scale-105 transition-all duration-500"
-              style={{ animationDelay: `${index * 150}ms` }}
-            >
-              <div className="text-textSecondary mb-6 flex justify-center group-hover:text-accent transition-all duration-300 group-hover:scale-125">
-                {service.icon}
+        <div className="flex flex-col gap-12 max-w-4xl mx-auto">
+          {services.map((service, index) => {
+            const progress = scrollProgress[service.id] || 0;
+            // As progress increases, card shrinks and moves away
+            const scale = Math.max(0, 1 - progress * 0.7); // Shrink from 1 to 0.3
+            const translateZ = progress * -50; // Move away (negative Z = away from viewer)
+            const opacity = Math.max(0, 1 - progress * 0); // Fade out
+
+            // Brightness decreases as card moves away
+            const brightness = Math.max(0.1, 1 - progress * 0.2);
+
+            return (
+              <div
+                key={service.id}
+                data-service-id={service.id}
+                className="service-item"
+                style={{
+                  transform: `translateZ(${translateZ}px) scale(${scale})`,
+                  opacity: opacity,
+                  transformStyle: 'preserve-3d',
+                  transition: 'transform 0.5s ease-out, opacity 0.1s ease-out, filter 0.1s ease-out',
+                  // filter: `brightness(${brightness})`,
+                }}
+              >
+                <div className="glass-card group hover:scale-105 transition-all duration-500 h-full flex flex-col overflow-hidden min-h-[500px]">
+                  {/* Image */}
+                  <div className="relative w-full h-80 overflow-hidden">
+                    <div 
+                      className="absolute inset-0 bg-gradient-to-br from-warm-brown/40 via-warm-tan/30 to-warm-brown/40 flex items-center justify-center transition-opacity duration-300"
+                      style={{ opacity: brightness }}
+                    >
+                      <div className="text-7xl text-warm-brown/50" style={{ opacity: brightness }}>
+                        {service.title.charAt(0)}
+                      </div>
+                    </div>
+                    {/* Placeholder for image - replace with actual Image component when you have images */}
+                    {/* <Image 
+                      src={service.image} 
+                      alt={service.title}
+                      fill
+                      className="object-cover group-hover:scale-110 transition-transform duration-500"
+                    /> */}
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-10 flex-1 flex flex-col">
+                    <h3 
+                      className="text-3xl md:text-4xl font-light mb-6 text-textPrimary group-hover:text-accent transition-colors duration-300"
+                      style={{ 
+                        opacity: brightness,
+                        // filter: `brightness(${Math.max(1, brightness * 1.2)})`
+                      }}
+                    >
+                      {service.title}
+                    </h3>
+                    <p 
+                      className="font-light leading-relaxed text-lg flex-1 text-textSecondary"
+                      style={{ 
+                        opacity: brightness,
+                        // filter: `brightness(${Math.max(1, brightness * 1.2)})`
+                      }}
+                    >
+                      {service.description}
+                    </p>
+                  </div>
+                </div>
               </div>
-              <h3 className="text-xl font-light mb-4 text-textPrimary group-hover:text-accent transition-colors duration-300">
-                {service.title}
-              </h3>
-              <p className="text-textSecondary font-light leading-relaxed">
-                {service.description}
-              </p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
