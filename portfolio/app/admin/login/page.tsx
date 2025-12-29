@@ -83,7 +83,7 @@ export default function AdminLogin() {
             <div className="space-y-4">
               <div className="p-4 bg-accent/10 border border-accent/30 rounded-lg">
                 <p className="text-textPrimary text-sm">
-                  We've sent a magic link to <strong>{email}</strong>
+                  We&apos;ve sent a magic link to <strong>{email}</strong>
                 </p>
                 <p className="text-textSecondary text-xs mt-2">
                   Click the link in the email to sign in. The link will expire in a few minutes.

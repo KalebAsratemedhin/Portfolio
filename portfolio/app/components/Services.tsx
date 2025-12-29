@@ -37,7 +37,7 @@ const Services = () => {
       // Calculate progress for each card
       const newProgress: Record<number, number> = {};
       
-      services.forEach((service, index) => {
+      services.forEach((service) => {
         const cardElement = sectionRef.current?.querySelector(`[data-service-id="${service.id}"]`) as HTMLElement;
         if (!cardElement) return;
 
@@ -80,7 +80,7 @@ const Services = () => {
         </div>
 
         <div className="flex flex-col gap-12 max-w-4xl mx-auto">
-          {services.map((service, index) => {
+          {services.map((service) => {
             const progress = scrollProgress[service.id] || 0;
             // As progress increases, card shrinks and moves away
             const scale = Math.max(0, 1 - progress * 0.7); // Shrink from 1 to 0.3

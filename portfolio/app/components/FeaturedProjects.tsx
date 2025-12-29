@@ -61,7 +61,7 @@ const Projects = () => {
     };
   }, [projects]);
 
-  const ProjectDemo = ({ project, index, isActive }: { project: Project; index: number; isActive: boolean }) => {
+  const ProjectDemo = ({ project, isActive }: { project: Project; isActive: boolean }) => {
     
     return (
       <div 
@@ -182,7 +182,6 @@ const Projects = () => {
                   <ProjectDemo 
                     key={`demo-${project.id}`}
                     project={project} 
-                    index={index}
                     isActive={activeProjectIndex === index}
                   />
                 ))} 
