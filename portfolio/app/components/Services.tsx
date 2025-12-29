@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 
 const Services = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -9,19 +10,19 @@ const Services = () => {
     {
       id: 1,
       title: "Frontend Development",
-      image: "/services/frontend.jpg", // You'll need to add these images
+      image: "https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=800&h=600&fit=crop",
       description: "Creating responsive and intuitive user interfaces using modern frameworks and libraries. I build beautiful, performant web experiences that users love.",
     },
     {
       id: 2,
       title: "Backend Development",
-      image: "/services/backend.jpg", // You'll need to add these images
+      image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&h=600&fit=crop",
       description: "Building robust and scalable server-side applications with modern technologies. Secure, efficient APIs and databases that power your applications.",
     },
     {
       id: 3,
       title: "AI Engineering",
-      image: "/services/ai.jpg", // You'll need to add these images
+      image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&h=600&fit=crop",
       description: "Developing intelligent solutions using cutting-edge AI technologies. From machine learning models to intelligent automation systems.",
     }
   ];
@@ -104,22 +105,17 @@ const Services = () => {
               >
                 <div className="glass-card group hover:scale-105 transition-all duration-500 h-full flex flex-col overflow-hidden min-h-[500px]">
                   {/* Image */}
-                  <div className="relative w-full h-80 overflow-hidden">
-                    <div 
-                      className="absolute inset-0 bg-gradient-to-br from-warm-brown/40 via-warm-tan/30 to-warm-brown/40 flex items-center justify-center transition-opacity duration-300"
-                      style={{ opacity: brightness }}
-                    >
-                      <div className="text-7xl text-warm-brown/50" style={{ opacity: brightness }}>
-                        {service.title.charAt(0)}
-                      </div>
-                    </div>
-                    {/* Placeholder for image - replace with actual Image component when you have images */}
-                    {/* <Image 
-                      src={service.image} 
+                  <div className="relative w-full h-80 overflow-hidden bg-gradient-to-br from-warm-brown/40 via-warm-tan/30 to-warm-brown/40">
+                    <Image
+                      src={service.image}
                       alt={service.title}
                       fill
                       className="object-cover group-hover:scale-110 transition-transform duration-500"
-                    /> */}
+                      style={{ 
+                        filter: `brightness(${brightness})`,
+                        opacity: brightness
+                      }}
+                    />
                   </div>
 
                   {/* Content */}

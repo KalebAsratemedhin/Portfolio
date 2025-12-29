@@ -3,35 +3,35 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { Experience } from '../../types/experience'
 
-export default function EducationsManager() {
-  const [educations, setEducations] = useState<Experience[]>([])
+export default function ExperiencesManager() {
+  const [experiences, setExperiences] = useState<Experience[]>([])
   const [loading, setLoading] = useState(true)
-  const [editingEducation, setEditingEducation] = useState<Experience | null>(null)
+  const [editingExperience, setEditingExperience] = useState<Experience | null>(null)
   const [showForm, setShowForm] = useState(false)
 
   useEffect(() => {
-    fetchEducations()
+    fetchExperiences()
   }, [])
 
-  const fetchEducations = async () => {
+  const fetchExperiences = async () => {
     try {
       const { data, error } = await supabase
         .from('experience')
         .select('*')
-        .eq('type', 'education')
+        .eq('type', 'work')
         .order('from', { ascending: false })
 
       if (error) throw error
-      setEducations(data || [])
+      setExperiences(data || [])
     } catch (err) {
-      console.error('Error fetching educations:', err)
+      console.error('Error fetching experiences:', err)
     } finally {
       setLoading(false)
     }
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this education?')) return
+    if (!confirm('Are you sure you want to delete this experience?')) return
 
     try {
       const { error } = await supabase
@@ -40,10 +40,10 @@ export default function EducationsManager() {
         .eq('id', id)
 
       if (error) throw error
-      fetchEducations()
+      fetchExperiences()
     } catch (err) {
-      console.error('Error deleting education:', err)
-      alert('Failed to delete education')
+      console.error('Error deleting experience:', err)
+      alert('Failed to delete experience')
     }
   }
 
@@ -51,7 +51,7 @@ export default function EducationsManager() {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
     
-    const educationData = {
+    const experienceData = {
       title: formData.get('title') as string,
       company_name: formData.get('company_name') as string,
       city: formData.get('city') as string,
@@ -59,44 +59,44 @@ export default function EducationsManager() {
       from: formData.get('from') as string,
       to: formData.get('to') || null,
       description: formData.get('description') as string,
-      type: 'education' as const,
+      type: 'work' as const,
     }
 
     try {
-      if (editingEducation) {
+      if (editingExperience) {
         // Update
         const { error } = await supabase
           .from('experience')
-          .update(educationData)
-          .eq('id', editingEducation.id)
+          .update(experienceData)
+          .eq('id', editingExperience.id)
 
         if (error) throw error
       } else {
         // Create
         const { error } = await supabase
           .from('experience')
-          .insert([educationData])
+          .insert([experienceData])
 
         if (error) throw error
       }
 
       setShowForm(false)
-      setEditingEducation(null)
-      fetchEducations()
+      setEditingExperience(null)
+      fetchExperiences()
     } catch (err) {
-      console.error('Error saving education:', err)
-      alert('Failed to save education')
+      console.error('Error saving experience:', err)
+      alert('Failed to save experience')
     }
   }
 
-  const handleEdit = (education: Experience) => {
-    setEditingEducation(education)
+  const handleEdit = (experience: Experience) => {
+    setEditingExperience(experience)
     setShowForm(true)
   }
 
   const handleCancel = () => {
     setShowForm(false)
-    setEditingEducation(null)
+    setEditingExperience(null)
   }
 
   if (loading) {
@@ -110,22 +110,22 @@ export default function EducationsManager() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-light text-textPrimary">Educations</h2>
+        <h2 className="text-2xl font-light text-textPrimary">Experiences</h2>
         <button
           onClick={() => {
-            setEditingEducation(null)
+            setEditingExperience(null)
             setShowForm(true)
           }}
           className="px-4 py-2 bg-accent text-bgPrimary rounded-lg hover:bg-accent/90 transition-colors"
         >
-          Add New Education
+          Add New Experience
         </button>
       </div>
 
       {showForm && (
         <div className="glass-card p-6 mb-6">
           <h3 className="text-xl font-light text-textPrimary mb-4">
-            {editingEducation ? 'Edit Education' : 'Create New Education'}
+            {editingExperience ? 'Edit Experience' : 'Create New Experience'}
           </h3>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -134,17 +134,17 @@ export default function EducationsManager() {
                 type="text"
                 name="title"
                 required
-                defaultValue={editingEducation?.title}
+                defaultValue={editingExperience?.title}
                 className="w-full px-4 py-2 bg-bgSecondary border border-border rounded-lg text-textPrimary focus:outline-none focus:border-accent"
               />
             </div>
             <div>
-              <label className="block text-sm font-light text-textSecondary mb-2">Institution Name</label>
+              <label className="block text-sm font-light text-textSecondary mb-2">Company Name</label>
               <input
                 type="text"
                 name="company_name"
                 required
-                defaultValue={editingEducation?.company_name}
+                defaultValue={editingExperience?.company_name}
                 className="w-full px-4 py-2 bg-bgSecondary border border-border rounded-lg text-textPrimary focus:outline-none focus:border-accent"
               />
             </div>
@@ -155,7 +155,7 @@ export default function EducationsManager() {
                   type="text"
                   name="city"
                   required
-                  defaultValue={editingEducation?.city}
+                  defaultValue={editingExperience?.city}
                   className="w-full px-4 py-2 bg-bgSecondary border border-border rounded-lg text-textPrimary focus:outline-none focus:border-accent"
                 />
               </div>
@@ -165,7 +165,7 @@ export default function EducationsManager() {
                   type="text"
                   name="country"
                   required
-                  defaultValue={editingEducation?.country}
+                  defaultValue={editingExperience?.country}
                   className="w-full px-4 py-2 bg-bgSecondary border border-border rounded-lg text-textPrimary focus:outline-none focus:border-accent"
                 />
               </div>
@@ -177,7 +177,7 @@ export default function EducationsManager() {
                   type="date"
                   name="from"
                   required
-                  defaultValue={editingEducation?.from}
+                  defaultValue={editingExperience?.from}
                   className="w-full px-4 py-2 bg-bgSecondary border border-border rounded-lg text-textPrimary focus:outline-none focus:border-accent"
                 />
               </div>
@@ -186,7 +186,7 @@ export default function EducationsManager() {
                 <input
                   type="date"
                   name="to"
-                  defaultValue={editingEducation?.to || ''}
+                  defaultValue={editingExperience?.to || ''}
                   className="w-full px-4 py-2 bg-bgSecondary border border-border rounded-lg text-textPrimary focus:outline-none focus:border-accent"
                 />
               </div>
@@ -197,7 +197,7 @@ export default function EducationsManager() {
                 name="description"
                 required
                 rows={4}
-                defaultValue={editingEducation?.description}
+                defaultValue={editingExperience?.description}
                 className="w-full px-4 py-2 bg-bgSecondary border border-border rounded-lg text-textPrimary focus:outline-none focus:border-accent"
               />
             </div>
@@ -206,7 +206,7 @@ export default function EducationsManager() {
                 type="submit"
                 className="px-6 py-2 bg-accent text-bgPrimary rounded-lg hover:bg-accent/90 transition-colors"
               >
-                {editingEducation ? 'Update' : 'Create'}
+                {editingExperience ? 'Update' : 'Create'}
               </button>
               <button
                 type="button"
@@ -221,29 +221,29 @@ export default function EducationsManager() {
       )}
 
       <div className="space-y-4">
-        {educations.map((education) => (
-          <div key={education.id} className="glass-card p-6">
+        {experiences.map((experience) => (
+          <div key={experience.id} className="glass-card p-6">
             <div className="flex justify-between items-start">
               <div className="flex-1">
-                <h3 className="text-xl font-light text-textPrimary mb-2">{education.title}</h3>
-                <p className="text-textSecondary text-sm mb-2">{education.company_name}</p>
+                <h3 className="text-xl font-light text-textPrimary mb-2">{experience.title}</h3>
+                <p className="text-textSecondary text-sm mb-2">{experience.company_name}</p>
                 <p className="text-textTertiary text-xs mb-2">
-                  {education.city}, {education.country}
+                  {experience.city}, {experience.country}
                 </p>
                 <p className="text-textTertiary text-xs mb-3">
-                  {new Date(education.from).toLocaleDateString()} - {education.to ? new Date(education.to).toLocaleDateString() : 'Present'}
+                  {new Date(experience.from).toLocaleDateString()} - {experience.to ? new Date(experience.to).toLocaleDateString() : 'Present'}
                 </p>
-                <p className="text-textSecondary text-sm">{education.description}</p>
+                <p className="text-textSecondary text-sm">{experience.description}</p>
               </div>
               <div className="flex gap-2 ml-4">
                 <button
-                  onClick={() => handleEdit(education)}
+                  onClick={() => handleEdit(experience)}
                   className="px-4 py-2 border border-border text-textSecondary rounded-lg hover:border-accent hover:text-textPrimary transition-colors"
                 >
                   Edit
                 </button>
                 <button
-                  onClick={() => handleDelete(education.id)}
+                  onClick={() => handleDelete(experience.id)}
                   className="px-4 py-2 border border-red-500/50 text-red-400 rounded-lg hover:border-red-500 hover:bg-red-500/10 transition-colors"
                 >
                   Delete

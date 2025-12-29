@@ -8,6 +8,9 @@ export default function ProjectsManager() {
   const [loading, setLoading] = useState(true)
   const [editingProject, setEditingProject] = useState<Project | null>(null)
   const [showForm, setShowForm] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
 
   useEffect(() => {
     fetchProjects()
@@ -50,13 +53,26 @@ export default function ProjectsManager() {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
     
+    let demoImageUrl = formData.get('demo_image_url') as string | null
+
+    // If a file is selected, upload it first
+    if (selectedFile) {
+      const uploadedUrl = await uploadImage(selectedFile)
+      if (uploadedUrl) {
+        demoImageUrl = uploadedUrl
+      } else {
+        // If upload failed, don't proceed
+        return
+      }
+    }
+
     const projectData = {
       title: formData.get('title') as string,
       description: formData.get('description') as string,
       tags: (formData.get('tags') as string).split(',').map(t => t.trim()),
       github_link: formData.get('github_link') as string,
       demo_link: formData.get('demo_link') || null,
-      demo_image_url: formData.get('demo_image_url') || null,
+      demo_image_url: demoImageUrl || null,
     }
 
     try {
@@ -79,6 +95,8 @@ export default function ProjectsManager() {
 
       setShowForm(false)
       setEditingProject(null)
+      setSelectedFile(null)
+      setImagePreview(null)
       fetchProjects()
     } catch (err) {
       console.error('Error saving project:', err)
@@ -88,16 +106,95 @@ export default function ProjectsManager() {
 
   const handleEdit = (project: Project) => {
     setEditingProject(project)
+    setSelectedFile(null)
+    setImagePreview(project.demo_image_url || null)
     setShowForm(true)
   }
 
   const handleCancel = () => {
     setShowForm(false)
     setEditingProject(null)
+    setSelectedFile(null)
+    setImagePreview(null)
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file')
+        e.target.value = '' // Clear the input
+        return
+      }
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Image size must be less than 5MB')
+        e.target.value = '' // Clear the input
+        return
+      }
+      setSelectedFile(file)
+      // Create preview
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    } else {
+      // File input was cleared
+      setSelectedFile(null)
+      // If there's an existing URL from editing, show that instead
+      if (editingProject?.demo_image_url) {
+        setImagePreview(editingProject.demo_image_url)
+      } else {
+        setImagePreview(null)
+      }
+    }
+  }
+
+  const uploadImage = async (file: File): Promise<string | null> => {
+    try {
+      setUploading(true)
+      
+      // Generate unique filename
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
+      const filePath = fileName
+
+      // Upload to Supabase storage
+      const { error: uploadError } = await supabase.storage
+        .from('portfolio-images')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        })
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError)
+        throw uploadError
+      }
+
+      // Get public URL
+      const { data } = supabase.storage
+        .from('portfolio-images')
+        .getPublicUrl(filePath)
+
+      return data.publicUrl
+    } catch (err) {
+      console.error('Error uploading image:', err)
+      alert('Failed to upload image')
+      return null
+    } finally {
+      setUploading(false)
+    }
   }
 
   if (loading) {
-    return <div className="text-center py-20 text-textSecondary">Loading projects...</div>
+    return (
+      <div className="flex justify-center items-center py-20">
+        <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    )
   }
 
   return (
@@ -107,6 +204,8 @@ export default function ProjectsManager() {
         <button
           onClick={() => {
             setEditingProject(null)
+            setSelectedFile(null)
+            setImagePreview(null)
             setShowForm(true)
           }}
           className="px-4 py-2 bg-accent text-bgPrimary rounded-lg hover:bg-accent/90 transition-colors"
@@ -172,13 +271,50 @@ export default function ProjectsManager() {
               />
             </div>
             <div>
-              <label className="block text-sm font-light text-textSecondary mb-2">Demo Image URL (optional)</label>
-              <input
-                type="url"
-                name="demo_image_url"
-                defaultValue={editingProject?.demo_image_url || ''}
-                className="w-full px-4 py-2 bg-bgSecondary border border-border rounded-lg text-textPrimary focus:outline-none focus:border-accent"
-              />
+              <label className="block text-sm font-light text-textSecondary mb-2">Demo Image</label>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-light text-textTertiary mb-2">Upload Image (or enter URL below)</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="w-full px-4 py-2 bg-bgSecondary border border-border rounded-lg text-textPrimary focus:outline-none focus:border-accent file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-light file:bg-accent file:text-bgPrimary hover:file:bg-accent/90 file:cursor-pointer"
+                  />
+                </div>
+                {imagePreview && (
+                  <div className="mt-2">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="max-w-full h-48 object-cover rounded-lg border border-border"
+                    />
+                  </div>
+                )}
+                <div>
+                  <label className="block text-xs font-light text-textTertiary mb-2">Or enter image URL</label>
+                  <input
+                    type="url"
+                    name="demo_image_url"
+                    defaultValue={editingProject?.demo_image_url || ''}
+                    placeholder="https://example.com/image.jpg"
+                    className="w-full px-4 py-2 bg-bgSecondary border border-border rounded-lg text-textPrimary focus:outline-none focus:border-accent"
+                    onChange={(e) => {
+                      if (e.target.value && !selectedFile) {
+                        setImagePreview(e.target.value)
+                      } else if (!e.target.value && !selectedFile) {
+                        setImagePreview(null)
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+              {uploading && (
+                <div className="mt-2 flex items-center gap-2 text-sm text-textSecondary">
+                  <div className="w-4 h-4 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>
+                  <span>Uploading image...</span>
+                </div>
+              )}
             </div>
             <div className="flex gap-4">
               <button

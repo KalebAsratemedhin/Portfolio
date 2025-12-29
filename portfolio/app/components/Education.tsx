@@ -101,8 +101,8 @@ const Education = () => {
           <div className="absolute left-8 md:left-1/2 transform md:-translate-x-1/2 w-0.5 timeline-line bg-gradient-to-b from-warm-brown via-warm-tan to-warm-brown transition-all duration-1000 ease-out z-[1]" style={{ height: '0%' }}></div>
 
           {loading && (
-            <div className="text-center py-20">
-              <p className="text-textSecondary font-light">Loading education...</p>
+            <div className="flex justify-center items-center py-20">
+              <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>
             </div>
           )}
 

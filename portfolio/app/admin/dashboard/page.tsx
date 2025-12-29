@@ -4,10 +4,11 @@ import { useRouter } from 'next/navigation'
 import { logoutAdmin, getSession } from '../../lib/auth'
 import ProjectsManager from '../../components/admin/ProjectsManager'
 import EducationsManager from '../../components/admin/EducationsManager'
+import ExperiencesManager from '../../components/admin/ExperiencesManager'
 
 export default function AdminDashboard() {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<'projects' | 'educations'>('projects')
+  const [activeTab, setActiveTab] = useState<'projects' | 'educations' | 'experiences'>('projects')
   const [userEmail, setUserEmail] = useState<string>('')
 
   useEffect(() => {
@@ -70,6 +71,16 @@ export default function AdminDashboard() {
           >
             Educations
           </button>
+          <button
+            onClick={() => setActiveTab('experiences')}
+            className={`px-6 py-3 font-light transition-colors ${
+              activeTab === 'experiences'
+                ? 'text-accent border-b-2 border-accent'
+                : 'text-textSecondary hover:text-textPrimary'
+            }`}
+          >
+            Experiences
+          </button>
         </div>
       </div>
 
@@ -77,6 +88,7 @@ export default function AdminDashboard() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === 'projects' && <ProjectsManager />}
         {activeTab === 'educations' && <EducationsManager />}
+        {activeTab === 'experiences' && <ExperiencesManager />}
       </div>
     </div>
   )
