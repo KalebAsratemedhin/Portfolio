@@ -1,32 +1,12 @@
 'use client'
 import { useEffect, useRef, useState } from 'react';
 import { getEducations } from '../lib/experiences';
-import { Experience } from '../types/experience';
+
+const education = getEducations();
 
 const Education = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const [visibleItems, setVisibleItems] = useState<Set<number>>(new Set());
-  const [education, setEducation] = useState<Experience[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchEducation = async () => {
-      try {
-        setLoading(true);
-        const data = await getEducations();
-        setEducation(data);
-        setError(null);
-      } catch (err) {
-        console.error('Failed to fetch education:', err);
-        setError('Failed to load education. Please try again later.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchEducation();
-  }, []);
 
   useEffect(() => {
     if (education.length === 0) return;
@@ -58,7 +38,7 @@ const Education = () => {
         items.forEach((item) => observer.unobserve(item));
       }
     };
-  }, [education]);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -100,25 +80,11 @@ const Education = () => {
           {/* Animated Timeline line (on top of static line) */}
           <div className="absolute left-8 md:left-1/2 transform md:-translate-x-1/2 w-0.5 timeline-line bg-gradient-to-b from-warm-brown via-warm-tan to-warm-brown transition-all duration-1000 ease-out z-[1]" style={{ height: '0%' }}></div>
 
-          {loading && (
-            <div className="flex justify-center items-center py-20">
-              <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>
-            </div>
-          )}
-
-          {error && (
-            <div className="text-center py-20">
-              <p className="text-red-400 font-light">{error}</p>
-            </div>
-          )}
-
-          {!loading && !error && education.length === 0 && (
+          {education.length === 0 ? (
             <div className="text-center py-20">
               <p className="text-textSecondary font-light">No education found.</p>
             </div>
-          )}
-
-          {!loading && !error && education.length > 0 && (
+          ) : (
             <div className="space-y-16">
               {education.map((item, index) => {
                 const isVisible = visibleItems.has(item.id);
@@ -149,7 +115,7 @@ const Education = () => {
                       }`}></div>
                     </div>
 
-                    {/* Content with scroll animations */}
+                    {/* Content with scroll animations - no card */}
                     <div className={`ml-16 md:ml-0 md:w-5/12 transition-all duration-700 ${
                       index % 2 === 0 ? 'md:mr-8 md:text-right' : 'md:ml-8'
                     } ${
@@ -159,28 +125,28 @@ const Education = () => {
                     }`}
                     style={{ transitionDelay: `${delay}ms` }}
                     >
-                      <div className={`glass-card group hover:scale-105 transition-all duration-500 ${
+                      <div className={`group pl-4 md:pl-0 border-l-2 md:border-l-0 md:border-none border-warm-brown/40 md:border-none ${
                         isVisible ? 'animate-scale-in' : ''
                       }`}>
-                        <div className="mb-3">
-                          <span className={`text-xs font-light uppercase tracking-wider px-3 py-1 rounded-full transition-all duration-500 bg-warm-tan/20 text-warm-brown border border-warm-brown/30 ${
-                            isVisible ? 'scale-100' : 'scale-0'
+                        <div className="mb-2">
+                          <span className={`text-xs font-light uppercase tracking-wider text-warm-brown ${
+                            isVisible ? 'opacity-100' : 'opacity-0'
                           }`}
                           style={{ transitionDelay: `${delay + 100}ms` }}
                           >
                             Education
                           </span>
                         </div>
-                        <h3 className={`text-xl md:text-2xl font-light text-textPrimary mb-2 group-hover:text-accent transition-colors duration-300 ${
+                        <h3 className={`text-xl md:text-2xl font-light text-textPrimary mb-1 group-hover:text-accent transition-colors duration-300 ${
                           isVisible ? 'translate-x-0' : index % 2 === 0 ? 'translate-x-8' : '-translate-x-8'
                         }`}
                         style={{ transitionDelay: `${delay + 200}ms` }}
                         >
                           {item.title}
                         </h3>
-                        <p className="text-textSecondary font-light mb-2">{item.company_name}</p>
-                        <p className="text-textTertiary text-sm mb-2">{location}</p>
-                        <p className="text-textTertiary text-xs font-light mb-4">{period}</p>
+                        <p className="text-textSecondary font-light text-sm mb-0.5">{item.company_name}</p>
+                        <p className="text-textTertiary text-sm mb-1">{location}</p>
+                        <p className="text-textTertiary text-xs font-light mb-3">{period}</p>
                         <p className={`text-textSecondary leading-relaxed text-sm font-light transition-all duration-700 ${
                           isVisible ? 'opacity-100' : 'opacity-0'
                         }`}

@@ -65,7 +65,7 @@ const Contact = () => {
     <div id="contact" ref={sectionRef} className="relative w-full min-h-screen py-32 bg-bgPrimary bg-texture flex flex-col justify-center">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="text-center mb-12 fade-in-item">
-          <span className="text-textSecondary text-sm uppercase tracking-widest font-light">06. Contact</span>
+          <span className="text-textSecondary text-sm uppercase tracking-widest font-light">07. Contact</span>
           <h2 className="section-title mt-4">Get In Touch</h2>
           <p className="text-textSecondary mt-4 font-light">
             Have a project in mind? Let&apos;s work together.

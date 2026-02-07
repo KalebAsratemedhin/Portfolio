@@ -4,31 +4,11 @@ import { FaGithub, FaExternalLinkAlt } from 'react-icons/fa';
 import { Project } from "../types/project";
 import { getProjects } from "../lib/projects";
 
+const projects = getProjects();
+
 const Projects = () => {
   const [activeProjectIndex, setActiveProjectIndex] = useState(0);
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const projectRefs = useRef<(HTMLDivElement | null)[]>([]);
-
-  // Fetch projects from Supabase
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        setLoading(true);
-        const data = await getProjects();
-        setProjects(data);
-        setError(null);
-      } catch (err) {
-        console.error('Failed to fetch projects:', err);
-        setError('Failed to load projects. Please try again later.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProjects();
-  }, []);
 
   // Set up Intersection Observer to track which project is in view
   useEffect(() => {
@@ -88,13 +68,26 @@ const Projects = () => {
                   {project.demo_link || 'localhost:3000'}
                 </div>
               </div>
-              <div className="flex-1 bg-bgPrimary/40 backdrop-blur-sm flex items-center justify-center relative overflow-hidden">
+              <div className="flex-1 bg-bgPrimary/40 backdrop-blur-sm flex items-center justify-center relative overflow-hidden min-h-[12rem]">
                 {project.demo_image_url ? (
                   <img 
                     src={project.demo_image_url} 
                     alt={project.title} 
                     className="w-full h-full object-cover"
                   />
+                ) : project.demo_link ? (
+                  <div className="absolute inset-0 overflow-hidden">
+                    {/* Desktop viewport (1280×800) scaled down to fit */}
+                    <div className="origin-top-left pointer-events-none w-[1280px] h-[800px] scale-[0.32] md:scale-[0.4] lg:scale-[0.48]">
+                      <iframe
+                        title={`${project.title} preview`}
+                        src={project.demo_link}
+                        className="border-0 w-[1280px] h-[800px] block"
+                        sandbox="allow-scripts allow-same-origin"
+                        loading="lazy"
+                      />
+                    </div>
+                  </div>
                 ) : (
                   <div className="text-center p-8">
                     <div className="w-20 h-20 mx-auto mb-4 bg-warm-brown/20 rounded-lg flex items-center justify-center">
@@ -153,25 +146,11 @@ const Projects = () => {
           <p className="text-textSecondary mt-4 font-light">Check out some of my recent work</p>
         </div>
 
-        {loading && (
-          <div className="flex justify-center items-center py-20">
-            <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>
-          </div>
-        )}
-
-        {error && (
-          <div className="text-center py-20">
-            <p className="text-red-400 font-light">{error}</p>
-          </div>
-        )}
-
-        {!loading && !error && projects.length === 0 && (
+        {projects.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-textSecondary font-light">No projects found.</p>
           </div>
-        )}
-
-        {!loading && !error && projects.length > 0 && (
+        ) : (
           <>
             {/* Fixed Demo Images Container - Left side, centered vertically in viewport */}
             <div 

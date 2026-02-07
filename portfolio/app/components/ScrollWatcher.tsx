@@ -2,14 +2,10 @@
 import { useEffect, useState } from 'react';
 
 export default function ScrollWatcher() {
-  const [scrollProgress, setScrollProgress] = useState(0);
   const [showBackToTop, setShowBackToTop] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = (window.scrollY / totalHeight) * 100;
-      setScrollProgress(progress);
       setShowBackToTop(window.scrollY > 400);
     };
 
@@ -19,14 +15,6 @@ export default function ScrollWatcher() {
 
   return (
     <>
-      {/* Scroll Progress Bar */}
-      <div className="fixed top-0 left-0 w-full h-px bg-border z-[100]">
-        <div 
-          className="h-full bg-textPrimary transition-all duration-150 ease-out"
-          style={{ width: `${scrollProgress}%` }}
-        />
-      </div>    
-      
       {/* Back to Top Button */}
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}

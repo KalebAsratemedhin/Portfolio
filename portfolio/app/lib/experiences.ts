@@ -1,27 +1,16 @@
-import { supabase } from './supabase'
 import { Experience } from '../types/experience'
+import { educationData, workExperienceData } from '../data/portfolio'
 
-export async function getExperiences(): Promise<Experience[]> {
-  const { data, error } = await supabase
-    .from('experience')
-    .select('*')
-    .order('from', { ascending: false })
-
-  if (error) {
-    console.error('Error fetching experiences:', error)
-    throw error
-  }
-
-  return data || []
+export function getExperiences(): Experience[] {
+  return [...workExperienceData, ...educationData].sort(
+    (a, b) => new Date(b.from).getTime() - new Date(a.from).getTime()
+  )
 }
 
-export async function getWorkExperiences(): Promise<Experience[]> {
-  const experiences = await getExperiences()
-  return experiences.filter(exp => exp.type === 'work')
+export function getWorkExperiences(): Experience[] {
+  return workExperienceData
 }
 
-export async function getEducations(): Promise<Experience[]> {
-  const experiences = await getExperiences()
-  return experiences.filter(exp => exp.type === 'education')
+export function getEducations(): Experience[] {
+  return educationData
 }
-
