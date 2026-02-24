@@ -6,8 +6,7 @@ import HeroSection from "../components/HeroSection";
 import ScrollWatcher from "../components/ScrollWatcher";
 import Services from "../components/Services";
 import Skills from "../components/Skills";
-import WorkExperience from "../components/WorkExperience";
-import Education from "../components/Education";
+import ExperienceAndEducation from "../components/ExperienceAndEducation";
 
 export default function Home() {
   return (
@@ -15,8 +14,7 @@ export default function Home() {
       <ScrollWatcher />
       <HeroSection /> 
       <About />
-      <WorkExperience />
-      <Education />
+      <ExperienceAndEducation />
       <Projects />
       <Skills />
       <Services />
