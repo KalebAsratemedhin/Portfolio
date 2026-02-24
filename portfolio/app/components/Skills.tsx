@@ -4,7 +4,7 @@ import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 import { skillsData } from '../data/portfolio';
 
-const easeOutExpo = [0.16, 1, 0.3, 1];
+const easeOutExpo = [0.16, 1, 0.3, 1] as const;
 const spring = { type: 'spring' as const, stiffness: 400, damping: 28 };
 
 const skillCategories: { key: keyof typeof skillsData; label: string; color: 'accent' | 'warm-brown' | 'warm-tan' }[] = [

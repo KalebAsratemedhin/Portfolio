@@ -83,7 +83,7 @@ const ExperienceEducation = () => {
         items.forEach((item) => observer.unobserve(item));
       }
     };
-  }, []);
+  }, [timelineItems.length]);
 
   useEffect(() => {
     const handleScroll = () => {

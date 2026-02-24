@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { FaGithub, FaExternalLinkAlt } from 'react-icons/fa';
 import { Project } from "../types/project";
 import { getProjects } from "../lib/projects";
@@ -29,17 +30,17 @@ const Projects = () => {
       }
     );
 
-    // Observe all project sections
-    projectRefs.current.forEach((ref) => {
+    const refs = projectRefs.current;
+    refs.forEach((ref) => {
       if (ref) observer.observe(ref);
     });
 
     return () => {
-      projectRefs.current.forEach((ref) => {
+      refs.forEach((ref) => {
         if (ref) observer.unobserve(ref);
       });
     };
-  }, [projects]);
+  }, []);
 
   const ProjectDemo = ({ project, isActive }: { project: Project; isActive: boolean }) => {
     
@@ -68,12 +69,14 @@ const Projects = () => {
                   {project.demo_link || 'localhost:3000'}
                 </div>
               </div>
-              <div className="flex-1 bg-bgPrimary/40 backdrop-blur-sm flex items-center justify-center relative overflow-hidden min-h-[12rem]">
+              <div className="flex-1 bg-bgPrimary/40 backdrop-blur-sm flex items-center justify-center relative overflow-hidden min-h-[12rem] min-w-0">
                 {project.demo_image_url ? (
-                  <img 
+                  <Image 
                     src={project.demo_image_url} 
                     alt={project.title} 
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 50vw"
                   />
                 ) : project.demo_link ? (
                   <div className="absolute inset-0 overflow-hidden">

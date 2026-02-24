@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { FaBars, FaTimes } from 'react-icons/fa';
 import { HiSun, HiMoon } from 'react-icons/hi';
 
@@ -68,11 +69,12 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20 md:h-24">
           <div className="flex-shrink-0">
-            <a href="#home" onClick={(e) => handleNavClick(e, 'home')} className="block">
-              <img 
+            <a href="#home" onClick={(e) => handleNavClick(e, 'home')} className="block relative h-12 sm:h-16 md:h-16 w-48 sm:w-56 md:w-64">
+              <Image 
                 src={theme === 'dark' ? "/logo-one-line-inverse.png" : "/logo-one-line-no-bg.png"} 
                 alt="Kaleb Asratemedhin" 
-                className="h-12 sm:h-16 md:h-64 w-64 transition-opacity duration-300"
+                fill
+                className="object-contain object-left transition-opacity duration-300"
               />
             </a>
           </div>

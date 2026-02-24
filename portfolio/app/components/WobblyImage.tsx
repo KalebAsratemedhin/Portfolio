@@ -7,7 +7,7 @@ const WobblyImage = ({ imageUrl }: { imageUrl: string }) => {
       className="relative w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 mx-auto"
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] as const }}
       whileHover={{ scale: 1.02, transition: { duration: 0.3 } }}
     >
       <motion.div
@@ -24,7 +24,7 @@ const WobblyImage = ({ imageUrl }: { imageUrl: string }) => {
           className="w-full h-full object-cover"
           initial={{ scale: 1.1 }}
           animate={{ scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] as const }}
         />
       </motion.div>
     </motion.div>

@@ -8,7 +8,7 @@ import type { Experience } from '../types/experience';
 const workItems = getWorkExperiences();
 const educationItems = getEducations();
 
-const easeOutExpo = [0.16, 1, 0.3, 1];
+const easeOutExpo = [0.16, 1, 0.3, 1] as const;
 const spring = { type: 'spring' as const, stiffness: 380, damping: 28 };
 
 function formatDate(dateStr: string) {

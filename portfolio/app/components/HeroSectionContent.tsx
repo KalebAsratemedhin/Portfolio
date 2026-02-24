@@ -21,7 +21,7 @@ const item = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+    transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const },
   },
 };
 
@@ -136,7 +136,7 @@ export default function HeroSectionContent() {
             className="flex-1 flex justify-center"
             initial={{ opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.7, delay: 0.4, ease: [0.22, 1, 0.36, 1] as const }}
           >
             <div className="relative">
               <motion.div
@@ -144,7 +144,7 @@ export default function HeroSectionContent() {
                 animate={{ opacity: [0.4, 0.7, 0.4] }}
                 transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
               />
-              <WobblyImage imageUrl="/profile-no-bg.png" />
+              <WobblyImage imageUrl="/profile-2.png" />
             </div>
           </motion.div>
         </div>

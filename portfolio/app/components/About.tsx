@@ -4,7 +4,7 @@ import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 import { HiDownload } from 'react-icons/hi';
 
-const easeOutExpo = [0.16, 1, 0.3, 1];
+const easeOutExpo = [0.16, 1, 0.3, 1] as const;
 
 export default function About() {
   const sectionRef = useRef<HTMLDivElement>(null);
