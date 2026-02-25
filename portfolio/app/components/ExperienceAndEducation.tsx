@@ -112,8 +112,8 @@ function ExperienceCard({
       style={{ perspective: 1200 }}
     >
       <motion.div
-        className={`group relative rounded-2xl overflow-visible ${
-          isFeatured ? 'md:rounded-3xl p-6 md:p-8' : 'p-5 md:p-6'
+        className={`group relative rounded-2xl overflow-visible p-6 md:p-6 ${
+          isFeatured ? 'md:rounded-3xl' : ''
         }`}
         onMouseMove={handleMouseMove}
         onMouseLeave={() => { handleMouseLeave(); setIsHovered(false); }}
@@ -312,7 +312,7 @@ export default function ExperienceAndEducation() {
             animate={isInView ? { opacity: 1 } : {}}
             transition={{ delay: 0.4, duration: 0.5 }}
           >
-            Work and education in two sections.
+            Work and education.
           </motion.p>
           <motion.div
             className="mx-auto mt-6 h-px w-24 bg-gradient-to-r from-transparent via-accent/60 to-transparent rounded-full"
@@ -375,16 +375,16 @@ export default function ExperienceAndEducation() {
           transition={{ duration: 0.85, ease: easeOutExpo }}
         >
           <motion.h3
-            className="text-[11px] font-black uppercase tracking-[0.25em] text-warm-brown mb-8 flex items-center justify-end gap-3"
+            className="text-[11px] font-black uppercase tracking-[0.25em] text-warm-brown mb-8 flex items-center gap-3"
             initial={{ opacity: 0, x: 40 }}
             animate={educationInView ? { opacity: 1, x: 0 } : {}}
             transition={{ delay: 0.15, duration: 0.5 }}
           >
-            <span className="w-12 h-0.5 bg-gradient-to-l from-warm-brown to-transparent rounded-full" />
+            <span className="w-12 h-0.5 bg-gradient-to-r from-warm-brown to-transparent rounded-full" />
             Education
           </motion.h3>
           {educationItems.length === 0 ? (
-            <p className="text-textSecondary text-sm font-light text-right">No education listed.</p>
+            <p className="text-textSecondary text-sm font-light">No education listed.</p>
           ) : (
             <motion.div
               className="space-y-6"

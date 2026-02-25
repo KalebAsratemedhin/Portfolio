@@ -42,18 +42,17 @@ const Projects = () => {
     };
   }, []);
 
-  const ProjectDemo = ({ project, isActive }: { project: Project; isActive: boolean }) => {
-    
+  const ProjectDemo = ({ project, isActive, compact }: { project: Project; isActive: boolean; compact?: boolean }) => {
     return (
-      <div 
+      <div
         className={`w-full transition-all duration-700 ${
-          isActive 
-            ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto' 
+          isActive
+            ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
             : 'opacity-0 scale-95 translate-y-4 pointer-events-none absolute'
         }`}
       >
         <div className="w-full group h-full">
-          <div className="h-64 md:h-80 lg:h-96 rounded-2xl overflow-hidden border border-border/50 shadow-2xl relative">
+          <div className={`overflow-hidden relative ${compact ? 'h-[28rem] rounded-t-2xl' : 'h-64 md:h-80 lg:h-96 rounded-2xl border border-border/50 shadow-2xl'}`}>
             {/* Placeholder gradient background */}
             <div className="absolute inset-0 bg-gradient-to-br from-warm-brown/30 via-warm-tan/20 to-warm-brown/30"></div>
             
@@ -69,7 +68,7 @@ const Projects = () => {
                   {project.demo_link || 'localhost:3000'}
                 </div>
               </div>
-              <div className="flex-1 bg-bgPrimary/40 backdrop-blur-sm flex items-center justify-center relative overflow-hidden min-h-[12rem] min-w-0">
+              <div className={`flex-1 bg-bgPrimary/40 backdrop-blur-sm flex items-center justify-center relative overflow-hidden min-w-0 ${compact ? 'min-h-[7rem]' : 'min-h-[12rem]'}`}>
                 {project.demo_image_url ? (
                   <Image 
                     src={project.demo_image_url} 
@@ -80,8 +79,8 @@ const Projects = () => {
                   />
                 ) : project.demo_link ? (
                   <div className="absolute inset-0 overflow-hidden">
-                    {/* Desktop viewport (1280×800) scaled down to fit */}
-                    <div className="origin-top-left pointer-events-none w-[1280px] h-[800px] scale-[0.32] md:scale-[0.4] lg:scale-[0.48]">
+                    {/* Fixed 1280×800 viewport = desktop layout; scale so it fills card width on mobile */}
+                    <div className={`origin-top-left pointer-events-none w-[1280px] h-[800px] block ${compact ? 'scale-[0.6]' : 'scale-[0.32] md:scale-[0.4] lg:scale-[0.48]'}`}>
                       <iframe
                         title={`${project.title} preview`}
                         src={project.demo_link}
@@ -129,8 +128,10 @@ const Projects = () => {
             </div>
           </div>
 
-          {/* Decorative elements */}
-          <div className="absolute -z-10 -inset-4 bg-gradient-to-r from-warm-brown/20 to-warm-tan/20 rounded-2xl blur-xl opacity-50 group-hover:opacity-100 transition-opacity duration-500"></div>
+          {/* Decorative elements — only on desktop */}
+          {!compact && (
+            <div className="absolute -z-10 -inset-4 bg-gradient-to-r from-warm-brown/20 to-warm-tan/20 rounded-2xl blur-xl opacity-50 group-hover:opacity-100 transition-opacity duration-500"></div>
+          )}
         </div>
       </div>
     );
@@ -155,21 +156,76 @@ const Projects = () => {
           </div>
         ) : (
           <>
-            {/* Fixed Demo Images Container - Left side, centered vertically in viewport */}
-            <div 
-             className="flex flex-row md:flex-row gap-12"
-            >
-              <div className="w-1/2 sticky top-1/3 self-start relative" style={{ minHeight: '400px' }}>
+            {/* Mobile / small screens: stacked cards — one column, each project is preview + content */}
+            <div className="flex flex-col gap-16 md:hidden">
+              {projects.map((project, index) => (
+                <article
+                  key={project.id}
+                  className="scroll-mt-24 rounded-2xl border border-border/50 overflow-hidden bg-bgPrimary/30 backdrop-blur-sm"
+                >
+                  <div className="w-full pb-0">
+                    <ProjectDemo project={project} isActive={true} compact />
+                  </div>
+                  <div className="border-t border-border/60 p-6 pt-6 space-y-5">
+                    <div>
+                      <span className="text-accent text-sm font-light uppercase tracking-wider">
+                        Featured Project {index + 1}
+                      </span>
+                      <h3 className="text-2xl font-light text-textPrimary mt-2 mb-3">
+                        {project.title}
+                      </h3>
+                    </div>
+                    <p className="text-textSecondary leading-relaxed text-sm font-light">
+                      {project.description}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {project.tags.map((tag, i) => (
+                        <span
+                          key={i}
+                          className="px-3 py-1.5 text-xs border border-border/50 bg-bgPrimary/50 text-textSecondary font-light rounded-full"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="flex flex-wrap gap-4 pt-2">
+                      <a
+                        href={project.github_link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-textSecondary hover:text-accent transition-colors"
+                      >
+                        <FaGithub size={18} />
+                        <span className="text-sm font-light">GitHub</span>
+                      </a>
+                      {project.demo_link && (
+                        <a
+                          href={project.demo_link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-textSecondary hover:text-accent transition-colors"
+                        >
+                          <FaExternalLinkAlt size={18} />
+                          <span className="text-sm font-light">Live Demo</span>
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            {/* Desktop (md+): two columns — sticky demo left, scrollable content right */}
+            <div className="hidden md:flex flex-row gap-12">
+              <div className="w-1/2 sticky top-1/3 self-start" style={{ minHeight: '400px' }}>
                 {projects.map((project, index) => (
-                  <ProjectDemo 
+                  <ProjectDemo
                     key={`demo-${project.id}`}
-                    project={project} 
+                    project={project}
                     isActive={activeProjectIndex === index}
                   />
-                ))} 
+                ))}
               </div>
-
-              {/* Scrollable Content Sections - Right side */}
               <div className="w-1/2">
                 {projects.map((project, index) => (
                   <div
@@ -178,7 +234,7 @@ const Projects = () => {
                       projectRefs.current[index] = el;
                     }}
                     data-project-index={index}
-                    className="min-h-screen flex items-center "
+                    className="min-h-screen flex items-center"
                   >
                     <div className="w-full">
                       <div className="space-y-6">
@@ -190,46 +246,43 @@ const Projects = () => {
                             {project.title}
                           </h3>
                         </div>
-
                         <div className="glass-card">
                           <p className="text-textSecondary leading-relaxed text-base font-light">
                             {project.description}
                           </p>
                         </div>
-
-                  <div className="flex flex-wrap gap-2">
-                    {project.tags.map((tag, i) => (
-                      <span
-                        key={i}
-                        className="px-4 py-2 text-xs border border-border/50 bg-bgPrimary/50 text-textSecondary font-light rounded-full backdrop-blur-sm transition-all duration-300 hover:border-accent/50 hover:text-accent"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="flex gap-4">
-                    <a
-                      href={project.github_link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-textSecondary hover:text-accent transition-all duration-300 group/link"
-                    >
-                      <FaGithub className="group-hover/link:scale-110 transition-transform duration-300" size={20} />
-                      <span className="text-sm font-light">GitHub</span>
-                    </a>
-                    {project.demo_link && (
-                      <a
-                        href={project.demo_link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-textSecondary hover:text-accent transition-all duration-300 group/link"
-                        >
-                        <FaExternalLinkAlt className="group-hover/link:scale-110 transition-transform duration-300" size={20} />
-                        <span className="text-sm font-light">Live Demo</span>
-                      </a>
-                    )}
-                  </div>
+                        <div className="flex flex-wrap gap-2">
+                          {project.tags.map((tag, i) => (
+                            <span
+                              key={i}
+                              className="px-4 py-2 text-xs border border-border/50 bg-bgPrimary/50 text-textSecondary font-light rounded-full backdrop-blur-sm transition-all duration-300 hover:border-accent/50 hover:text-accent"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                        <div className="flex gap-4">
+                          <a
+                            href={project.github_link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-textSecondary hover:text-accent transition-all duration-300 group/link"
+                          >
+                            <FaGithub className="group-hover/link:scale-110 transition-transform duration-300" size={20} />
+                            <span className="text-sm font-light">GitHub</span>
+                          </a>
+                          {project.demo_link && (
+                            <a
+                              href={project.demo_link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-2 text-textSecondary hover:text-accent transition-all duration-300 group/link"
+                            >
+                              <FaExternalLinkAlt className="group-hover/link:scale-110 transition-transform duration-300" size={20} />
+                              <span className="text-sm font-light">Live Demo</span>
+                            </a>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>

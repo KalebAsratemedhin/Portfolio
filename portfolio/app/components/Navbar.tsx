@@ -8,6 +8,7 @@ const Navbar = () => {
   const [nav, setNav] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [activeSection, setActiveSection] = useState<string>('home');
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
@@ -47,6 +48,29 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Track which section is in view for active link styling
+  useEffect(() => {
+    const sectionIds = ['home', 'about', 'experience', 'education', 'portfolio', 'skills', 'contact'];
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      { rootMargin: '-80px 0px -60% 0px', threshold: 0 }
+    );
+    sectionIds.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+    return () => sectionIds.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.unobserve(el);
+    });
+  }, []);
+
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, link: string) => {
     e.preventDefault();
     setNav(false);
@@ -63,13 +87,13 @@ const Navbar = () => {
   };
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      scrolled ? 'bg-bgPrimary/80 backdrop-blur-sm border-b border-border' : 'bg-transparent'
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b border-border ${
+      scrolled ? 'bg-bgPrimary/80 backdrop-blur-sm' : 'bg-transparent'
     }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20 md:h-24">
-          <div className="flex-shrink-0">
-            <a href="#home" onClick={(e) => handleNavClick(e, 'home')} className="block relative h-12 sm:h-16 md:h-16 w-48 sm:w-56 md:w-64">
+          <div className="flex-shrink-0 flex items-center overflow-visible">
+            <a href="#home" onClick={(e) => handleNavClick(e, 'home')} className="block relative h-56 md:h-64 -my-4 md:-my-4 w-80 sm:w-96 md:w-[28rem] lg:w-[34rem] xl:w-[40rem]">
               <Image 
                 src={theme === 'dark' ? "/logo-one-line-inverse.png" : "/logo-one-line-no-bg.png"} 
                 alt="Kaleb Asratemedhin" 
@@ -86,7 +110,11 @@ const Navbar = () => {
                   <a
                     href={`#${link}`}
                     onClick={(e) => handleNavClick(e, link)}
-                    className="nav-link text-sm font-light uppercase tracking-wider"
+                    className={`nav-link text-sm font-light uppercase tracking-wider transition-colors duration-200 ${
+                      activeSection === link
+                        ? 'text-accent font-medium'
+                        : 'text-textSecondary hover:text-textPrimary'
+                    }`}
                   >
                     {label}
                   </a>
@@ -130,7 +158,11 @@ const Navbar = () => {
                 <a
                   href={`#${link}`}
                   onClick={(e) => handleNavClick(e, link)}
-                  className="text-2xl font-light uppercase tracking-wider nav-link"
+                  className={`text-2xl font-light uppercase tracking-wider nav-link transition-colors duration-200 ${
+                    activeSection === link
+                      ? 'text-accent font-medium'
+                      : 'text-textSecondary'
+                  }`}
                 >
                   {label}
                 </a>
