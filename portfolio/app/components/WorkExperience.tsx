@@ -95,9 +95,27 @@ const WorkExperience = () => {
                     <p className="text-textSecondary font-light text-sm mb-0.5">{item.company_name}</p>
                     {location && <p className="text-textTertiary text-sm mb-1">{location}</p>}
                     <p className="text-textTertiary text-xs font-light mb-4">{period}</p>
-                    <p className="text-textSecondary leading-relaxed text-sm font-light mt-auto">
-                      {item.description}
-                    </p>
+                    <ul className="list-disc list-outside ml-5 space-y-1.5 text-textSecondary leading-relaxed text-sm font-light mt-auto">
+                      {item.description.map((point) => {
+                        if (typeof point === 'string') {
+                          return <li key={point}>{point}</li>;
+                        }
+                        return (
+                          <li key={point.text}>
+                            {point.text}
+                            {point.children && point.children.length > 0 && (
+                              <ul className="mt-1.5 ml-4 list-['–_'] space-y-1 text-textTertiary">
+                                {point.children.map((child) => (
+                                  <li key={child} className="pl-1">
+                                    {child}
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </li>
+                        );
+                      })}
+                    </ul>
                   </div>
                 </motion.article>
               );

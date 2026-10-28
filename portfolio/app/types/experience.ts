@@ -1,3 +1,10 @@
+export type DescriptionPoint =
+  | string
+  | {
+      text: string
+      children?: string[]
+    }
+
 export interface Experience {
   id: number
   idx?: number
@@ -7,9 +14,8 @@ export interface Experience {
   country: string
   from: string
   to: string
-  description: string
+  description: DescriptionPoint[]
   type: 'work' | 'education'
   created_at?: string
   updated_at?: string
 }
-

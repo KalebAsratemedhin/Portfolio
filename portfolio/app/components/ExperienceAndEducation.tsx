@@ -3,7 +3,33 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState } from 'react';
 import { getWorkExperiences, getEducations } from '../lib/experiences';
-import type { Experience } from '../types/experience';
+import type { DescriptionPoint, Experience } from '../types/experience';
+
+function DescriptionList({ points }: { points: DescriptionPoint[] }) {
+  return (
+    <ul className="list-disc list-outside ml-5 space-y-1.5 text-textSecondary text-sm leading-relaxed font-light">
+      {points.map((point) => {
+        if (typeof point === 'string') {
+          return <li key={point}>{point}</li>;
+        }
+        return (
+          <li key={point.text}>
+            {point.text}
+            {point.children && point.children.length > 0 && (
+              <ul className="mt-1.5 ml-4 list-['–_'] space-y-1 text-textTertiary">
+                {point.children.map((child) => (
+                  <li key={child} className="pl-1">
+                    {child}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
 
 const workItems = getWorkExperiences();
 const educationItems = getEducations();
@@ -229,9 +255,7 @@ function ExperienceCard({
               {location}
             </p>
           )}
-          <p className="text-textSecondary text-sm leading-relaxed font-light pl-1">
-            {item.description}
-          </p>
+          <DescriptionList points={item.description} />
         </div>
       </motion.div>
     </motion.article>

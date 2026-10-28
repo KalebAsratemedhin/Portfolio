@@ -144,7 +144,7 @@ export default function HeroSectionContent() {
                 animate={{ opacity: [0.4, 0.7, 0.4] }}
                 transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
               />
-              <WobblyImage imageUrl="/profile-2.png" />
+              <WobblyImage imageUrl="/profile-2.jpg" />
             </div>
           </motion.div>
         </div>

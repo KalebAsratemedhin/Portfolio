@@ -157,7 +157,7 @@ const Projects = () => {
         ) : (
           <>
             {/* Mobile / small screens: stacked cards — one column, each project is preview + content */}
-            <div className="flex flex-col gap-16 md:hidden">
+            <div className="flex flex-col gap-10 md:hidden">
               {projects.map((project, index) => (
                 <article
                   key={project.id}
@@ -234,7 +234,7 @@ const Projects = () => {
                       projectRefs.current[index] = el;
                     }}
                     data-project-index={index}
-                    className="min-h-screen flex items-center"
+                    className="min-h-[60vh] flex items-center"
                   >
                     <div className="w-full">
                       <div className="space-y-6">
