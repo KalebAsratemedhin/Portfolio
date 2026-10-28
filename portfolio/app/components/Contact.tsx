@@ -44,13 +44,40 @@ const Contact = () => {
     setIsSubmitting(true);
     setSubmitStatus('idle');
 
+    const scriptUrl = process.env.NEXT_PUBLIC_CONTACT_SCRIPT_URL;
+
     try {
-      const mailtoLink = `mailto:risekab@gmail.com?subject=Contact from ${formData.name}&body=${encodeURIComponent(formData.message)}`;
-      window.location.href = mailtoLink;
-      
+      if (!scriptUrl) {
+        throw new Error('Contact form is not configured');
+      }
+
+      // Post directly from the browser — local Node often cannot reach script.google.com
+      const response = await fetch(scriptUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          message: formData.message.trim(),
+        }),
+        redirect: 'follow',
+      });
+
+      const text = await response.text();
+      let data: { ok?: boolean; error?: string } = {};
+      try {
+        data = JSON.parse(text);
+      } catch {
+        // Apps Script sometimes returns empty/non-JSON after redirect; treat HTTP success as ok
+        data = { ok: response.ok };
+      }
+
+      if (!response.ok || data.ok === false) {
+        throw new Error(data.error || 'Failed to send message');
+      }
+
       setSubmitStatus('success');
       setFormData({ name: '', email: '', message: '' });
-      
       setTimeout(() => setSubmitStatus('idle'), 3000);
     } catch (error) {
       console.error('Error sending message:', error);
