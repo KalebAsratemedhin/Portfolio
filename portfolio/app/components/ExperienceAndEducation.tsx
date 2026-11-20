@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, useInView } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { getWorkExperiences, getEducations } from '../lib/experiences';
 import type { DescriptionPoint, Experience } from '../types/experience';
 
@@ -71,16 +71,21 @@ function EducationIcon() {
   );
 }
 
+const CARD_STAGGER = 0.16;
+const STAGGER_BATCH_MS = 80;
+
+type CardMotionCustom = { index: number; delay: number };
+
 const cardVariants = {
-  hidden: (i: number) => ({
+  hidden: ({ index }: CardMotionCustom) => ({
     opacity: 0,
     y: 72,
-    x: i % 2 === 0 ? -56 : 56,
+    x: index % 2 === 0 ? -56 : 56,
     scale: 0.88,
-    rotateZ: i % 2 === 0 ? -4 : 4,
+    rotateZ: index % 2 === 0 ? -4 : 4,
     filter: 'blur(14px)',
   }),
-  visible: {
+  visible: ({ delay }: CardMotionCustom) => ({
     opacity: 1,
     y: 0,
     x: 0,
@@ -92,19 +97,48 @@ const cardVariants = {
       stiffness: 140,
       damping: 16,
       mass: 0.85,
-      opacity: { duration: 0.45, ease: easeOutExpo },
-      filter: { duration: 0.55, ease: easeOutExpo },
+      delay,
+      opacity: { duration: 0.45, ease: easeOutExpo, delay },
+      filter: { duration: 0.55, ease: easeOutExpo, delay },
     },
-  },
+  }),
 };
 
 const barVariants = {
   hidden: { scaleX: 0 },
-  visible: {
+  visible: ({ delay }: CardMotionCustom) => ({
     scaleX: 1,
-    transition: { delay: 0.35, duration: 0.85, ease: easeOutExpo },
-  },
+    transition: { delay: delay + 0.35, duration: 0.85, ease: easeOutExpo },
+  }),
 };
+
+/** Shared stagger queue for cards that enter the viewport in the same moment. */
+function useSectionRevealStagger(sectionInView: boolean) {
+  const delaysRef = useRef<Map<number, number>>(new Map());
+  const batchRef = useRef({ time: 0, count: 0 });
+
+  useEffect(() => {
+    if (!sectionInView) {
+      delaysRef.current = new Map();
+      batchRef.current = { time: 0, count: 0 };
+    }
+  }, [sectionInView]);
+
+  return useCallback((index: number) => {
+    const existing = delaysRef.current.get(index);
+    if (existing !== undefined) return existing;
+
+    const now = performance.now();
+    if (now - batchRef.current.time > STAGGER_BATCH_MS) {
+      batchRef.current = { time: now, count: 0 };
+    }
+
+    const delay = batchRef.current.count * CARD_STAGGER;
+    batchRef.current.count += 1;
+    delaysRef.current.set(index, delay);
+    return delay;
+  }, []);
+}
 
 function ExperienceCard({
   item,
@@ -113,6 +147,7 @@ function ExperienceCard({
   isFeatured,
   durationMonths,
   sectionInView,
+  claimRevealDelay,
 }: {
   item: Experience;
   index: number;
@@ -120,21 +155,27 @@ function ExperienceCard({
   isFeatured: boolean;
   durationMonths: number;
   sectionInView: boolean;
+  claimRevealDelay: (index: number) => number;
 }) {
   const ref = useRef<HTMLElement>(null);
   const cardInView = useInView(ref, { amount: 0.35 });
   // Latch: play once per section visit; reset when the section leaves
   const [revealed, setRevealed] = useState(false);
+  const [staggerDelay, setStaggerDelay] = useState(0);
 
   useEffect(() => {
     if (!sectionInView) {
       setRevealed(false);
+      setStaggerDelay(0);
       return;
     }
     if (cardInView) {
+      setStaggerDelay(claimRevealDelay(index));
       setRevealed(true);
     }
-  }, [sectionInView, cardInView]);
+  }, [sectionInView, cardInView, claimRevealDelay, index]);
+
+  const motionCustom: CardMotionCustom = { index, delay: staggerDelay };
 
   const { from, to, isCurrent } = formatPeriod(item.from, item.to ?? null);
   const location = [item.city, item.country].filter(Boolean).join(', ') || null;
@@ -158,7 +199,7 @@ function ExperienceCard({
   return (
     <motion.article
       ref={ref}
-      custom={index}
+      custom={motionCustom}
       variants={cardVariants}
       initial="hidden"
       animate={revealed ? 'visible' : 'hidden'}
@@ -254,6 +295,7 @@ function ExperienceCard({
             <motion.div
               className={`h-full rounded-full ${isWork ? 'bg-gradient-to-r from-accent to-warm-tan' : 'bg-gradient-to-r from-warm-brown to-warm-tan'}`}
               style={{ width: `${barWidth}%` }}
+              custom={motionCustom}
               variants={barVariants}
               initial="hidden"
               animate={revealed ? 'visible' : 'hidden'}
@@ -330,6 +372,8 @@ export default function ExperienceAndEducation() {
   // "some" keeps the section active while any part is on screen (avoids mid-scroll resets)
   const experienceInView = useInView(experienceRef, { amount: 'some' });
   const educationInView = useInView(educationRef, { amount: 'some' });
+  const claimWorkRevealDelay = useSectionRevealStagger(experienceInView);
+  const claimEducationRevealDelay = useSectionRevealStagger(educationInView);
 
   return (
     <>
@@ -337,9 +381,8 @@ export default function ExperienceAndEducation() {
       <div
         ref={experienceRef}
         id="experience"
-        className="relative w-full py-28 md:py-36 overflow-hidden scroll-mt-24"
+        className="relative w-full py-28 md:py-36 overflow-hidden scroll-mt-24 section-bg-experience"
       >
-        <div className="absolute inset-0 bg-bgPrimary bg-texture" />
 
         <motion.span
           className="absolute inset-0 flex items-center justify-center pointer-events-none select-none text-[min(28vw,320px)] font-black tracking-tighter text-textPrimary"
@@ -379,6 +422,7 @@ export default function ExperienceAndEducation() {
                   isFeatured={index === 0}
                   durationMonths={getDurationMonths(item.from, item.to ?? null)}
                   sectionInView={experienceInView}
+                  claimRevealDelay={claimWorkRevealDelay}
                 />
               ))}
             </div>
@@ -390,9 +434,8 @@ export default function ExperienceAndEducation() {
       <div
         ref={educationRef}
         id="education"
-        className="relative w-full py-28 md:py-36 overflow-hidden scroll-mt-24"
+        className="relative w-full py-28 md:py-36 overflow-hidden scroll-mt-24 section-bg-education"
       >
-        <div className="absolute inset-0 bg-bgPrimary bg-texture" />
 
         <motion.span
           className="absolute inset-0 flex items-center justify-center pointer-events-none select-none text-[min(28vw,320px)] font-black tracking-tighter text-textPrimary"
@@ -432,6 +475,7 @@ export default function ExperienceAndEducation() {
                   isFeatured={index === 0}
                   durationMonths={getDurationMonths(item.from, item.to ?? null)}
                   sectionInView={educationInView}
+                  claimRevealDelay={claimEducationRevealDelay}
                 />
               ))}
             </div>

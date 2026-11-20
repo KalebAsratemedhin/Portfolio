@@ -117,7 +117,7 @@ const Services = () => {
     <div
       id="services"
       ref={sectionRef}
-      className="relative w-full min-h-screen py-32 bg-bgSecondary bg-texture overflow-hidden"
+      className="relative w-full min-h-screen py-32 section-bg-services overflow-hidden"
     >
       <div className="absolute top-0 right-0 w-96 h-96 bg-warm-tan/10 rounded-full blur-3xl animate-float" />
 

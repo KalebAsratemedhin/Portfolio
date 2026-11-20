@@ -42,7 +42,7 @@ export default function HeroSectionContent() {
   return (
     <motion.div
       id="home"
-      className="relative w-full min-h-screen flex items-center justify-center overflow-hidden bg-texture page-container"
+      className="relative w-full min-h-screen flex items-center justify-center overflow-hidden section-bg-hero page-container"
       initial={false}
     >
       <div className="absolute inset-0 bg-gradient-to-br from-warm-brown/5 via-transparent to-warm-tan/5 pointer-events-none z-0" />

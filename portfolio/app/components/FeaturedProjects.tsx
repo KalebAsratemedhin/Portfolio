@@ -138,7 +138,7 @@ const Projects = () => {
   };
 
   return (
-    <div id="portfolio" className="relative w-full bg-bgSecondary bg-texture">
+    <div id="portfolio" className="relative w-full section-bg-projects">
       {/* Animated background elements */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-warm-brown/10 rounded-full blur-3xl animate-float"></div>
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-warm-tan/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
