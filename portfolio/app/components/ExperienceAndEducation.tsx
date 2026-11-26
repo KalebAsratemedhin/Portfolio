@@ -1,6 +1,6 @@
 'use client';
 
-import { motion, useInView } from 'framer-motion';
+import { motion, useInView, type Variants } from 'framer-motion';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { getWorkExperiences, getEducations } from '../lib/experiences';
 import type { DescriptionPoint, Experience } from '../types/experience';
@@ -76,7 +76,7 @@ const STAGGER_BATCH_MS = 80;
 
 type CardMotionCustom = { index: number; delay: number };
 
-const cardVariants = {
+const cardVariants: Variants = {
   hidden: ({ index }: CardMotionCustom) => ({
     opacity: 0,
     y: 72,
@@ -93,7 +93,7 @@ const cardVariants = {
     rotateZ: 0,
     filter: 'blur(0px)',
     transition: {
-      type: 'spring',
+      type: 'spring' as const,
       stiffness: 140,
       damping: 16,
       mass: 0.85,
@@ -104,7 +104,7 @@ const cardVariants = {
   }),
 };
 
-const barVariants = {
+const barVariants: Variants = {
   hidden: { scaleX: 0 },
   visible: ({ delay }: CardMotionCustom) => ({
     scaleX: 1,
