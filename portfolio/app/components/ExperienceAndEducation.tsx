@@ -1,33 +1,28 @@
 'use client';
 
-import { motion, useInView } from 'framer-motion';
-import { useRef, useState } from 'react';
+import { motion, useInView, type Variants } from 'framer-motion';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { getWorkExperiences, getEducations } from '../lib/experiences';
 import type { DescriptionPoint, Experience } from '../types/experience';
 
-function DescriptionList({ points }: { points: DescriptionPoint[] }) {
+function descriptionToParagraphs(points: DescriptionPoint[]): string[] {
+  return points.map((point) => {
+    if (typeof point === 'string') return point;
+    if (point.children && point.children.length > 0) {
+      return `${point.text} ${point.children.join(' ')}`;
+    }
+    return point.text;
+  });
+}
+
+function DescriptionParagraphs({ points }: { points: DescriptionPoint[] }) {
+  const paragraphs = descriptionToParagraphs(points);
   return (
-    <ul className="list-disc list-outside ml-5 space-y-1.5 text-textSecondary text-sm leading-relaxed font-light">
-      {points.map((point) => {
-        if (typeof point === 'string') {
-          return <li key={point}>{point}</li>;
-        }
-        return (
-          <li key={point.text}>
-            {point.text}
-            {point.children && point.children.length > 0 && (
-              <ul className="mt-1.5 ml-4 list-['–_'] space-y-1 text-textTertiary">
-                {point.children.map((child) => (
-                  <li key={child} className="pl-1">
-                    {child}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </li>
-        );
-      })}
-    </ul>
+    <div className="space-y-3 text-textSecondary text-sm leading-relaxed font-light pl-1">
+      {paragraphs.map((paragraph) => (
+        <p key={paragraph}>{paragraph}</p>
+      ))}
+    </div>
   );
 }
 
@@ -76,23 +71,74 @@ function EducationIcon() {
   );
 }
 
-const cardVariants = {
-  hidden: { opacity: 0, y: 40, rotateX: 12 },
-  visible: (i: number) => ({
+const CARD_STAGGER = 0.16;
+const STAGGER_BATCH_MS = 80;
+
+type CardMotionCustom = { index: number; delay: number };
+
+const cardVariants: Variants = {
+  hidden: ({ index }: CardMotionCustom) => ({
+    opacity: 0,
+    y: 72,
+    x: index % 2 === 0 ? -56 : 56,
+    scale: 0.88,
+    rotateZ: index % 2 === 0 ? -4 : 4,
+    filter: 'blur(14px)',
+  }),
+  visible: ({ delay }: CardMotionCustom) => ({
     opacity: 1,
     y: 0,
-    rotateX: 0,
-    transition: { delay: i * 0.1, duration: 0.65, ease: easeOutExpo },
+    x: 0,
+    scale: 1,
+    rotateZ: 0,
+    filter: 'blur(0px)',
+    transition: {
+      type: 'spring' as const,
+      stiffness: 140,
+      damping: 16,
+      mass: 0.85,
+      delay,
+      opacity: { duration: 0.45, ease: easeOutExpo, delay },
+      filter: { duration: 0.55, ease: easeOutExpo, delay },
+    },
   }),
 };
 
-const barVariants = {
+const barVariants: Variants = {
   hidden: { scaleX: 0 },
-  visible: (i: number) => ({
+  visible: ({ delay }: CardMotionCustom) => ({
     scaleX: 1,
-    transition: { delay: i * 0.1 + 0.25, duration: 0.8, ease: easeOutExpo },
+    transition: { delay: delay + 0.35, duration: 0.85, ease: easeOutExpo },
   }),
 };
+
+/** Shared stagger queue for cards that enter the viewport in the same moment. */
+function useSectionRevealStagger(sectionInView: boolean) {
+  const delaysRef = useRef<Map<number, number>>(new Map());
+  const batchRef = useRef({ time: 0, count: 0 });
+
+  useEffect(() => {
+    if (!sectionInView) {
+      delaysRef.current = new Map();
+      batchRef.current = { time: 0, count: 0 };
+    }
+  }, [sectionInView]);
+
+  return useCallback((index: number) => {
+    const existing = delaysRef.current.get(index);
+    if (existing !== undefined) return existing;
+
+    const now = performance.now();
+    if (now - batchRef.current.time > STAGGER_BATCH_MS) {
+      batchRef.current = { time: now, count: 0 };
+    }
+
+    const delay = batchRef.current.count * CARD_STAGGER;
+    batchRef.current.count += 1;
+    delaysRef.current.set(index, delay);
+    return delay;
+  }, []);
+}
 
 function ExperienceCard({
   item,
@@ -100,20 +146,41 @@ function ExperienceCard({
   variant,
   isFeatured,
   durationMonths,
-  idAttr,
+  sectionInView,
+  claimRevealDelay,
 }: {
   item: Experience;
   index: number;
   variant: 'work' | 'education';
   isFeatured: boolean;
   durationMonths: number;
-  idAttr?: string;
+  sectionInView: boolean;
+  claimRevealDelay: (index: number) => number;
 }) {
+  const ref = useRef<HTMLElement>(null);
+  const cardInView = useInView(ref, { amount: 0.35 });
+  // Latch: play once per section visit; reset when the section leaves
+  const [revealed, setRevealed] = useState(false);
+  const [staggerDelay, setStaggerDelay] = useState(0);
+
+  useEffect(() => {
+    if (!sectionInView) {
+      setRevealed(false);
+      setStaggerDelay(0);
+      return;
+    }
+    if (cardInView) {
+      setStaggerDelay(claimRevealDelay(index));
+      setRevealed(true);
+    }
+  }, [sectionInView, cardInView, claimRevealDelay, index]);
+
+  const motionCustom: CardMotionCustom = { index, delay: staggerDelay };
+
   const { from, to, isCurrent } = formatPeriod(item.from, item.to ?? null);
   const location = [item.city, item.country].filter(Boolean).join(', ') || null;
   const isWork = variant === 'work';
   const barWidth = Math.min(100, (durationMonths / MAX_DURATION_MONTHS) * 100);
-  const startYear = new Date(item.from).getFullYear();
   const [mousePosition, setMousePosition] = useState({ x: 0.5, y: 0.5 });
   const [isHovered, setIsHovered] = useState(false);
 
@@ -131,9 +198,11 @@ function ExperienceCard({
 
   return (
     <motion.article
-      custom={index}
+      ref={ref}
+      custom={motionCustom}
       variants={cardVariants}
-      id={idAttr}
+      initial="hidden"
+      animate={revealed ? 'visible' : 'hidden'}
       className="scroll-mt-24"
       style={{ perspective: 1200 }}
     >
@@ -167,9 +236,9 @@ function ExperienceCard({
           boxShadow: '0 8px 32px -8px rgba(0,0,0,0.08)',
         }}
       >
-        {/* Hover gradient border */}
+        {/* Accent border — visible at rest, stronger on hover */}
         <div
-          className={`absolute -inset-px rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none ${
+          className={`absolute -inset-px rounded-2xl opacity-40 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none ${
             isFeatured ? 'md:rounded-3xl' : ''
           }`}
           style={{
@@ -211,25 +280,13 @@ function ExperienceCard({
               <motion.span
                 className="inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-textPrimary/10 text-textPrimary border border-border/60"
                 initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.1 + 0.3, type: 'spring', stiffness: 400 }}
+                animate={revealed ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
+                transition={{ delay: 0.25, type: 'spring', stiffness: 400 }}
               >
                 Current
               </motion.span>
             )}
           </div>
-
-          <motion.span
-            className={`absolute -top-2 right-2 text-6xl md:text-7xl font-black tracking-tighter select-none ${
-              isWork ? 'text-accent' : 'text-warm-brown'
-            }`}
-            style={{ opacity: 0.08 }}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 0.08, scale: 1 }}
-            transition={{ delay: index * 0.1 + 0.1, duration: 0.5 }}
-          >
-            {startYear}
-          </motion.span>
 
           <p className="text-xs font-semibold text-textTertiary tabular-nums mb-2 pl-1">
             {from} → {to}
@@ -238,10 +295,10 @@ function ExperienceCard({
             <motion.div
               className={`h-full rounded-full ${isWork ? 'bg-gradient-to-r from-accent to-warm-tan' : 'bg-gradient-to-r from-warm-brown to-warm-tan'}`}
               style={{ width: `${barWidth}%` }}
-              custom={index}
+              custom={motionCustom}
               variants={barVariants}
               initial="hidden"
-              animate="visible"
+              animate={revealed ? 'visible' : 'hidden'}
             />
           </div>
           <h3 className={`font-semibold text-textPrimary leading-tight tracking-tight mb-1 pl-1 ${isFeatured ? 'text-xl md:text-2xl' : 'text-lg'}`}>
@@ -255,125 +312,107 @@ function ExperienceCard({
               {location}
             </p>
           )}
-          <DescriptionList points={item.description} />
+          <DescriptionParagraphs points={item.description} />
         </div>
       </motion.div>
     </motion.article>
   );
 }
 
+function SectionHeader({
+  label,
+  title,
+  inView,
+  accentClass,
+  barClass,
+}: {
+  label: string;
+  title: string;
+  inView: boolean;
+  accentClass: string;
+  barClass: string;
+}) {
+  return (
+    <motion.header
+      className="mb-10 md:mb-12"
+      initial={{ opacity: 0, y: 24 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.6, ease: easeOutExpo }}
+    >
+      <motion.span
+        className={`text-[10px] font-black uppercase tracking-[0.3em] ${accentClass}`}
+        initial={{ letterSpacing: '0.5em', opacity: 0 }}
+        animate={inView ? { letterSpacing: '0.3em', opacity: 1 } : {}}
+        transition={{ delay: 0.15, duration: 0.6 }}
+      >
+        {label}
+      </motion.span>
+      <motion.h2
+        className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mt-3 mb-4 text-textPrimary"
+        initial={{ opacity: 0, y: 12 }}
+        animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ delay: 0.2, duration: 0.5 }}
+      >
+        {title}
+      </motion.h2>
+      <motion.div
+        className={`h-px w-24 rounded-full ${barClass}`}
+        initial={{ scaleX: 0 }}
+        animate={inView ? { scaleX: 1 } : {}}
+        transition={{ delay: 0.35, duration: 0.5 }}
+        style={{ transformOrigin: 'left' }}
+      />
+    </motion.header>
+  );
+}
+
 export default function ExperienceAndEducation() {
-  const sectionRef = useRef<HTMLDivElement>(null);
   const experienceRef = useRef<HTMLDivElement>(null);
   const educationRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(sectionRef, {
-    once: false,
-    amount: 0.15,
-    margin: '0px 0px -15% 0px',
-  });
-  const experienceInView = useInView(experienceRef, {
-    once: false,
-    amount: 0.2,
-    margin: '0px 0px -20% 0px',
-  });
-  const educationInView = useInView(educationRef, {
-    once: false,
-    amount: 0.2,
-    margin: '0px 0px -20% 0px',
-  });
+  // "some" keeps the section active while any part is on screen (avoids mid-scroll resets)
+  const experienceInView = useInView(experienceRef, { amount: 'some' });
+  const educationInView = useInView(educationRef, { amount: 'some' });
+  const claimWorkRevealDelay = useSectionRevealStagger(experienceInView);
+  const claimEducationRevealDelay = useSectionRevealStagger(educationInView);
 
   return (
-    <div ref={sectionRef} className="relative w-full min-h-screen py-28 md:py-36 overflow-hidden">
-      <div className="absolute inset-0 bg-bgPrimary bg-texture" />
-
-      <motion.span
-        className="absolute inset-0 flex items-center justify-center pointer-events-none select-none text-[min(28vw,320px)] font-black tracking-tighter text-textPrimary"
-        style={{ opacity: 0.03 }}
-        initial={{ opacity: 0 }}
-        animate={isInView ? { opacity: 0.03 } : {}}
-        transition={{ duration: 0.8 }}
+    <>
+      {/* Professional Experience */}
+      <div
+        ref={experienceRef}
+        id="experience"
+        className="relative w-full py-28 md:py-36 overflow-hidden scroll-mt-24 section-bg-experience"
       >
-        02
-      </motion.span>
 
-      <motion.div
-        className="absolute top-0 right-0 w-[400px] h-[400px] rounded-full bg-accent/10 blur-3xl pointer-events-none"
-        animate={{ x: [0, 24, 0], y: [0, -20, 0], scale: [1, 1.12, 1] }}
-        transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
-      />
-      <motion.div
-        className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-warm-brown/10 blur-3xl pointer-events-none"
-        animate={{ x: [0, -24, 0], y: [0, 20, 0], scale: [1, 1.12, 1] }}
-        transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut', delay: 3 }}
-      />
-
-      <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.header
-          className="text-center mb-20 md:mb-24 relative"
-          initial={{ opacity: 0, y: 24 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, ease: easeOutExpo }}
+        <motion.span
+          className="absolute inset-0 flex items-center justify-center pointer-events-none select-none text-[min(28vw,320px)] font-black tracking-tighter text-textPrimary"
+          style={{ opacity: 0.03 }}
+          initial={{ opacity: 0 }}
+          animate={experienceInView ? { opacity: 0.03 } : {}}
+          transition={{ duration: 0.8 }}
         >
-          <motion.span
-            className="text-textTertiary text-[10px] font-black uppercase tracking-[0.3em]"
-            initial={{ letterSpacing: '0.5em', opacity: 0 }}
-            animate={isInView ? { letterSpacing: '0.3em', opacity: 1 } : {}}
-            transition={{ delay: 0.2, duration: 0.6 }}
-          >
-            Experience & Education
-          </motion.span>
-          <motion.h2
-            className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mt-4 mb-3 text-textPrimary"
-            initial={{ opacity: 0, y: 12 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: 0.25, duration: 0.5 }}
-          >
-            Where I build & learn
-          </motion.h2>
-          <motion.p
-            className="text-textSecondary text-sm md:text-base font-light max-w-md mx-auto"
-            initial={{ opacity: 0 }}
-            animate={isInView ? { opacity: 1 } : {}}
-            transition={{ delay: 0.4, duration: 0.5 }}
-          >
-            Work and education.
-          </motion.p>
-          <motion.div
-            className="mx-auto mt-6 h-px w-24 bg-gradient-to-r from-transparent via-accent/60 to-transparent rounded-full"
-            initial={{ scaleX: 0 }}
-            animate={isInView ? { scaleX: 1 } : {}}
-            transition={{ delay: 0.6, duration: 0.5 }}
-            style={{ transformOrigin: 'center' }}
+          02
+        </motion.span>
+
+        <motion.div
+          className="absolute top-0 right-0 w-[400px] h-[400px] rounded-full bg-accent/10 blur-3xl pointer-events-none"
+          animate={{ x: [0, 24, 0], y: [0, -20, 0], scale: [1, 1.12, 1] }}
+          transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+        />
+
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionHeader
+            label="02. Experience"
+            title="Professional Experience"
+            inView={experienceInView}
+            accentClass="text-accent"
+            barClass="bg-gradient-to-r from-accent/60 to-transparent"
           />
-        </motion.header>
 
-        {/* Row 1: Professional Experience - slides in from LEFT */}
-        <motion.section
-          ref={experienceRef}
-          id="experience"
-          className="scroll-mt-24 mb-24 md:mb-32"
-          initial={{ opacity: 0, x: -80 }}
-          animate={experienceInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -80 }}
-          transition={{ duration: 0.85, ease: easeOutExpo }}
-        >
-          <motion.h3
-            className="text-[11px] font-black uppercase tracking-[0.25em] text-accent mb-8 flex items-center gap-3"
-            initial={{ opacity: 0, x: -40 }}
-            animate={experienceInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ delay: 0.15, duration: 0.5 }}
-          >
-            <span className="w-12 h-0.5 bg-gradient-to-r from-accent to-transparent rounded-full" />
-            Professional Experience
-          </motion.h3>
           {workItems.length === 0 ? (
             <p className="text-textSecondary text-sm font-light">No work experience listed.</p>
           ) : (
-            <motion.div
-              className="space-y-6"
-              variants={{ visible: { transition: { staggerChildren: 0.12, delayChildren: 0.2 } } }}
-              initial="hidden"
-              animate={experienceInView ? 'visible' : 'hidden'}
-            >
+            <div className="space-y-6">
               {workItems.map((item, index) => (
                 <ExperienceCard
                   key={item.id}
@@ -382,40 +421,51 @@ export default function ExperienceAndEducation() {
                   variant="work"
                   isFeatured={index === 0}
                   durationMonths={getDurationMonths(item.from, item.to ?? null)}
-                  idAttr={index === 0 ? 'experience' : undefined}
+                  sectionInView={experienceInView}
+                  claimRevealDelay={claimWorkRevealDelay}
                 />
               ))}
-            </motion.div>
+            </div>
           )}
-        </motion.section>
+        </div>
+      </div>
 
-        {/* Row 2: Education - slides in from RIGHT */}
-        <motion.section
-          ref={educationRef}
-          id="education"
-          className="scroll-mt-24"
-          initial={{ opacity: 0, x: 80 }}
-          animate={educationInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 80 }}
-          transition={{ duration: 0.85, ease: easeOutExpo }}
+      {/* Education */}
+      <div
+        ref={educationRef}
+        id="education"
+        className="relative w-full py-28 md:py-36 overflow-hidden scroll-mt-24 section-bg-education"
+      >
+
+        <motion.span
+          className="absolute inset-0 flex items-center justify-center pointer-events-none select-none text-[min(28vw,320px)] font-black tracking-tighter text-textPrimary"
+          style={{ opacity: 0.03 }}
+          initial={{ opacity: 0 }}
+          animate={educationInView ? { opacity: 0.03 } : {}}
+          transition={{ duration: 0.8 }}
         >
-          <motion.h3
-            className="text-[11px] font-black uppercase tracking-[0.25em] text-warm-brown mb-8 flex items-center gap-3"
-            initial={{ opacity: 0, x: 40 }}
-            animate={educationInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ delay: 0.15, duration: 0.5 }}
-          >
-            <span className="w-12 h-0.5 bg-gradient-to-r from-warm-brown to-transparent rounded-full" />
-            Education
-          </motion.h3>
+          03
+        </motion.span>
+
+        <motion.div
+          className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-warm-brown/10 blur-3xl pointer-events-none"
+          animate={{ x: [0, -24, 0], y: [0, 20, 0], scale: [1, 1.12, 1] }}
+          transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut', delay: 3 }}
+        />
+
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionHeader
+            label="03. Education"
+            title="Education"
+            inView={educationInView}
+            accentClass="text-warm-brown"
+            barClass="bg-gradient-to-r from-warm-brown/60 to-transparent"
+          />
+
           {educationItems.length === 0 ? (
             <p className="text-textSecondary text-sm font-light">No education listed.</p>
           ) : (
-            <motion.div
-              className="space-y-6"
-              variants={{ visible: { transition: { staggerChildren: 0.12, delayChildren: 0.2 } } }}
-              initial="hidden"
-              animate={educationInView ? 'visible' : 'hidden'}
-            >
+            <div className="space-y-6">
               {educationItems.map((item, index) => (
                 <ExperienceCard
                   key={item.id}
@@ -424,13 +474,14 @@ export default function ExperienceAndEducation() {
                   variant="education"
                   isFeatured={index === 0}
                   durationMonths={getDurationMonths(item.from, item.to ?? null)}
-                  idAttr={index === 0 ? 'education' : undefined}
+                  sectionInView={educationInView}
+                  claimRevealDelay={claimEducationRevealDelay}
                 />
               ))}
-            </motion.div>
+            </div>
           )}
-        </motion.section>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

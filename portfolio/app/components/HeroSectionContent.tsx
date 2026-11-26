@@ -42,7 +42,7 @@ export default function HeroSectionContent() {
   return (
     <motion.div
       id="home"
-      className="relative w-full min-h-screen flex items-center justify-center overflow-hidden bg-texture page-container"
+      className="relative w-full min-h-screen flex items-center justify-center overflow-hidden section-bg-hero page-container"
       initial={false}
     >
       <div className="absolute inset-0 bg-gradient-to-br from-warm-brown/5 via-transparent to-warm-tan/5 pointer-events-none z-0" />
@@ -64,10 +64,10 @@ export default function HeroSectionContent() {
         transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 1.5 }}
       />
       <div className="absolute inset-0 bg-bgSecondary/20" />
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 z-10">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-12">
+      <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-0 z-10 min-h-screen flex items-center">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-8 md:gap-4 w-full">
           <motion.div
-            className="flex-1 space-y-8 text-center md:text-left"
+            className="flex-1 md:w-1/2 space-y-8 text-center md:text-left"
             variants={container}
             initial="hidden"
             animate="visible"
@@ -133,19 +133,12 @@ export default function HeroSectionContent() {
             </motion.div>
           </motion.div>
           <motion.div
-            className="flex-1 flex justify-center"
+            className="w-full md:w-1/2 flex justify-center items-center shrink-0"
             initial={{ opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, delay: 0.4, ease: [0.22, 1, 0.36, 1] as const }}
           >
-            <div className="relative">
-              <motion.div
-                className="absolute inset-0 bg-warm-brown/20 rounded-2xl md:rounded-3xl blur-2xl -z-10"
-                animate={{ opacity: [0.4, 0.7, 0.4] }}
-                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-              />
-              <WobblyImage imageUrl="/profile-2.jpg" />
-            </div>
+            <WobblyImage imageUrl="/profile-2.png" />
           </motion.div>
         </div>
       </div>

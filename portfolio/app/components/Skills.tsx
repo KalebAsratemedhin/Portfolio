@@ -1,81 +1,194 @@
 'use client';
 
 import { motion, useInView } from 'framer-motion';
-import { useRef } from 'react';
+import { useRef, type ComponentType } from 'react';
+import {
+  SiAngular,
+  SiCsharp,
+  SiDjango,
+  SiDocker,
+  SiExpress,
+  SiFastapi,
+  SiGit,
+  SiGo,
+  SiJavascript,
+  SiKubernetes,
+  SiLangchain,
+  SiLinux,
+  SiMongodb,
+  SiMysql,
+  SiN8N,
+  SiNestjs,
+  SiNextdotjs,
+  SiNodedotjs,
+  SiOpenjdk,
+  SiPostgresql,
+  SiPython,
+  SiReact,
+  SiTypescript,
+  SiVuedotjs,
+} from 'react-icons/si';
 import { skillsData } from '../data/portfolio';
 
 const easeOutExpo = [0.16, 1, 0.3, 1] as const;
-const spring = { type: 'spring' as const, stiffness: 400, damping: 28 };
 
-const skillCategories: { key: keyof typeof skillsData; label: string; color: 'accent' | 'warm-brown' | 'warm-tan' }[] = [
-  { key: 'programmingLanguages', label: 'Programming Languages', color: 'accent' },
-  { key: 'librariesAndFrameworks', label: 'Libraries & Frameworks', color: 'warm-brown' },
-  { key: 'databases', label: 'Databases', color: 'warm-tan' },
-  { key: 'technologiesAndTools', label: 'Technologies & Tools', color: 'accent' },
+type IconComponent = ComponentType<{ className?: string; 'aria-hidden'?: boolean }>;
+
+type SkillVisual = {
+  name: string;
+  Icon?: IconComponent;
+  /** Local public asset path when react-icons is unavailable */
+  src?: string;
+};
+
+const skillVisuals: Record<string, SkillVisual> = {
+  TypeScript: { name: 'TypeScript', Icon: SiTypescript },
+  Python: { name: 'Python', Icon: SiPython },
+  'C#': { name: 'C#', Icon: SiCsharp },
+  Java: { name: 'Java', Icon: SiOpenjdk },
+  Golang: { name: 'Golang', Icon: SiGo },
+  JavaScript: { name: 'JavaScript', Icon: SiJavascript },
+  FastAPI: { name: 'FastAPI', Icon: SiFastapi },
+  Django: { name: 'Django', Icon: SiDjango },
+  'Nest.js': { name: 'Nest.js', Icon: SiNestjs },
+  'React.js': { name: 'React.js', Icon: SiReact },
+  'Next.js': { name: 'Next.js', Icon: SiNextdotjs },
+  Vue: { name: 'Vue', Icon: SiVuedotjs },
+  'Angular.js': { name: 'Angular.js', Icon: SiAngular },
+  'Express.js': { name: 'Express.js', Icon: SiExpress },
+  MERN: { name: 'MERN', Icon: SiNodedotjs },
+  'Vector DBs (Weaviate)': { name: 'Weaviate', src: '/skills/weaviate-icon.png' },
+  MongoDB: { name: 'MongoDB', Icon: SiMongodb },
+  MySQL: { name: 'MySQL', Icon: SiMysql },
+  PostgreSQL: { name: 'PostgreSQL', Icon: SiPostgresql },
+  Git: { name: 'Git', Icon: SiGit },
+  Docker: { name: 'Docker', Icon: SiDocker },
+  Linux: { name: 'Linux', Icon: SiLinux },
+  gRPC: { name: 'gRPC', src: '/skills/grpc.svg' },
+  Microservices: { name: 'Microservices', Icon: SiKubernetes },
+  Langgraph: { name: 'LangGraph', Icon: SiLangchain },
+  Langchain: { name: 'Langchain', Icon: SiLangchain },
+  n8n: { name: 'n8n', Icon: SiN8N },
+};
+
+const skillCategories: {
+  id: string;
+  label: string;
+  skills: string[];
+  direction: 'left' | 'right';
+}[] = [
+  {
+    id: 'languages',
+    label: 'Languages',
+    skills: skillsData.programmingLanguages,
+    direction: 'left',
+  },
+  {
+    id: 'frameworks',
+    label: 'Frameworks',
+    skills: skillsData.librariesAndFrameworks,
+    direction: 'right',
+  },
+  {
+    id: 'databases-tools',
+    label: 'Databases & Tools',
+    skills: [...skillsData.databases, ...skillsData.technologiesAndTools],
+    direction: 'left',
+  },
 ];
 
-const sectionVariants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.08, duration: 0.5, ease: easeOutExpo },
-  }),
-};
+function resolveSkill(name: string): SkillVisual {
+  return skillVisuals[name] ?? { name };
+}
 
-const pillVariants = {
-  hidden: { opacity: 0, scale: 0.9 },
-  visible: (i: number) => ({
-    opacity: 1,
-    scale: 1,
-    transition: { delay: i * 0.025, duration: 0.3, ease: easeOutExpo },
-  }),
-};
+function SkillLogo({ skill }: { skill: SkillVisual }) {
+  if (skill.Icon) {
+    const Icon = skill.Icon;
+    return <Icon className="w-8 h-8 md:w-9 md:h-9 text-textPrimary" aria-hidden />;
+  }
 
-const colorClasses = {
-  accent: {
-    border: 'border-accent/40 hover:border-accent',
-    bg: 'bg-accent/5 hover:bg-accent/10',
-    text: 'text-textPrimary hover:text-accent',
-  },
-  'warm-brown': {
-    border: 'border-warm-brown/40 hover:border-warm-brown',
-    bg: 'bg-warm-brown/5 hover:bg-warm-brown/10',
-    text: 'text-textPrimary hover:text-warm-brown',
-  },
-  'warm-tan': {
-    border: 'border-warm-tan/40 hover:border-warm-tan',
-    bg: 'bg-warm-tan/5 hover:bg-warm-tan/10',
-    text: 'text-textPrimary hover:text-warm-tan',
-  },
-};
+  if (skill.src) {
+    return (
+      // Local brand assets (incl. SVG) — next/image disallows SVG by default
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={skill.src}
+        alt=""
+        width={36}
+        height={36}
+        className="w-8 h-8 md:w-9 md:h-9 object-contain"
+        loading="lazy"
+      />
+    );
+  }
 
-function SkillPill({
-  name,
-  index,
-  colorKey,
-}: {
-  name: string;
-  index: number;
-  colorKey: 'accent' | 'warm-brown' | 'warm-tan';
-}) {
-  const c = colorClasses[colorKey];
   return (
-    <motion.span
-      custom={index}
-      variants={pillVariants}
-      className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium border transition-colors duration-300 whitespace-nowrap ${c.border} ${c.bg} ${c.text}`}
-      whileHover={{
-        scale: 1.06,
-        y: -2,
-        boxShadow: '0 6px 20px -4px rgba(0,0,0,0.1)',
-        transition: spring,
-      }}
-      whileTap={{ scale: 0.97 }}
+    <span className="flex h-9 w-9 items-center justify-center rounded-md bg-accent/10 text-sm font-semibold text-accent">
+      {skill.name.slice(0, 2).toUpperCase()}
+    </span>
+  );
+}
+
+function SkillCard({ skill }: { skill: SkillVisual }) {
+  return (
+    <div className="flex w-[9.5rem] md:w-[10.5rem] shrink-0 flex-col items-center gap-3 rounded-2xl border border-border/70 bg-bgPrimary px-4 py-5 shadow-[0_8px_24px_-12px_rgba(0,0,0,0.12)]">
+      <div className="flex h-12 w-12 items-center justify-center">
+        <SkillLogo skill={skill} />
+      </div>
+      <span className="text-center text-sm font-medium tracking-tight text-textPrimary">
+        {skill.name}
+      </span>
+    </div>
+  );
+}
+
+function SkillMarquee({
+  label,
+  skills,
+  direction,
+  index,
+}: {
+  label: string;
+  skills: string[];
+  direction: 'left' | 'right';
+  index: number;
+}) {
+  const visuals = skills.map(resolveSkill);
+  const copies = Math.max(2, Math.ceil(10 / Math.max(visuals.length, 1)));
+  const half = Array.from({ length: copies }, () => visuals).flat();
+  const track = [...half, ...half];
+
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.25 }}
+      transition={{ delay: index * 0.08, duration: 0.5, ease: easeOutExpo }}
+      className="space-y-4"
     >
-      <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" />
-      {name}
-    </motion.span>
+      <h3 className="text-[11px] font-semibold uppercase tracking-[0.22em] text-accent px-1">
+        {label}
+      </h3>
+      <div className="relative overflow-hidden">
+        <div
+          className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 md:w-20 bg-gradient-to-r from-[var(--section-surface)] to-transparent"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 md:w-20 bg-gradient-to-l from-[var(--section-surface)] to-transparent"
+          aria-hidden
+        />
+        <div
+          className={`skills-marquee-track ${
+            direction === 'left' ? 'skills-marquee-left' : 'skills-marquee-right'
+          }`}
+        >
+          {track.map((skill, i) => (
+            <SkillCard key={`${skill.name}-${i}`} skill={skill} />
+          ))}
+        </div>
+      </div>
+    </motion.section>
   );
 }
 
@@ -83,17 +196,16 @@ export default function Skills() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef, {
     once: true,
-    amount: 0.15,
-    margin: '0px 0px -15% 0px',
+    amount: 0.12,
+    margin: '0px 0px -10% 0px',
   });
 
   return (
     <div
       id="skills"
       ref={sectionRef}
-      className="relative w-full min-h-screen py-28 md:py-36 overflow-hidden"
+      className="relative w-full min-h-screen py-28 md:py-36 overflow-hidden section-bg-skills"
     >
-      <div className="absolute inset-0 bg-bgPrimary bg-texture" />
       <motion.div
         className="absolute top-0 right-0 w-[420px] h-[420px] rounded-full bg-accent/5 blur-3xl pointer-events-none"
         animate={{ x: [0, 15, 0], y: [0, -10, 0] }}
@@ -105,59 +217,39 @@ export default function Skills() {
         transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
       />
 
-      <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.header
-          className="text-center mb-14 md:mb-16"
+          className="mb-12 md:mb-16"
           initial={{ opacity: 0, y: 24 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, ease: easeOutExpo }}
         >
-          <span className="text-textTertiary text-[10px] font-bold uppercase tracking-[0.25em]">
-            05
+          <span className="text-accent text-[10px] font-black uppercase tracking-[0.3em]">
+            05. Skills
           </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mt-2 mb-3 text-textPrimary">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mt-3 mb-4 text-textPrimary">
             Skills & Technologies
           </h2>
-          <p className="text-textSecondary text-sm md:text-base font-light">
-            What I use to build with
-          </p>
           <motion.div
-            className="mx-auto mt-6 h-px w-20 bg-gradient-to-r from-transparent via-accent/50 to-transparent rounded-full"
+            className="h-px w-24 bg-gradient-to-r from-accent/60 to-transparent rounded-full"
             initial={{ scaleX: 0 }}
             animate={isInView ? { scaleX: 1 } : {}}
-            transition={{ delay: 0.4, duration: 0.5 }}
-            style={{ transformOrigin: 'center' }}
+            transition={{ delay: 0.35, duration: 0.5 }}
+            style={{ transformOrigin: 'left' }}
           />
         </motion.header>
 
-        <motion.div
-          className="space-y-10 md:space-y-12"
-          variants={{
-            visible: {
-              transition: { staggerChildren: 0.06, delayChildren: 0.12 },
-            },
-          }}
-          initial="hidden"
-          animate={isInView ? 'visible' : 'hidden'}
-        >
-          {skillCategories.map(({ key, label, color }, index) => (
-            <motion.section
-              key={key}
-              custom={index}
-              variants={sectionVariants}
-              className="relative"
-            >
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-textSecondary mb-4">
-                {label}
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {skillsData[key].map((skill, i) => (
-                  <SkillPill key={skill} name={skill} index={i} colorKey={color} />
-                ))}
-              </div>
-            </motion.section>
+        <div className="space-y-10 md:space-y-12">
+          {skillCategories.map(({ id, label, skills, direction }, index) => (
+            <SkillMarquee
+              key={id}
+              label={label}
+              skills={skills}
+              direction={direction}
+              index={index}
+            />
           ))}
-        </motion.div>
+        </div>
       </div>
     </div>
   );

@@ -89,7 +89,7 @@ const Contact = () => {
   };
 
   return (
-    <div id="contact" ref={sectionRef} className="relative w-full min-h-screen py-32 bg-bgPrimary bg-texture flex flex-col justify-center">
+    <div id="contact" ref={sectionRef} className="relative w-full min-h-screen py-32 section-bg-contact flex flex-col justify-center">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="text-center mb-12 fade-in-item">
           <span className="text-textSecondary text-sm uppercase tracking-widest font-light">07. Contact</span>

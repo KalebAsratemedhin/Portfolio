@@ -11,8 +11,7 @@ export const educationData: Experience[] = [
     from: '2022-05-01',
     to: '2026-06-01',
     description: [
-      'Top 10th University in Africa',
-      'Relevant Courses: Data Structures and Algorithms, Web Application Development, Object Oriented Programming, Computer Architecture and Organization, Fundamentals of Software Engineering, Machine Learning',
+      "Studying at one of Africa's top 10 universities, with coursework covering Data Structures and Algorithms, Web Application Development, Object Oriented Programming, Computer Architecture and Organization, Fundamentals of Software Engineering, and Machine Learning.",
     ],
     type: 'education',
   },
@@ -25,9 +24,7 @@ export const educationData: Experience[] = [
     from: '2024-12-01',
     to: '2025-02-01',
     description: [
-      'Attended Financial Data Analysis and Artificial Intelligence Mastery Training, gaining hands-on fintech experience',
-      'Built real-world projects using data analysis and AI tools for financial insights and solutions',
-      'Participated in daily stand-ups, cool-downs, community building, and lecture sessions',
+      'Completed Financial Data Analysis and Artificial Intelligence Mastery Training, gaining hands-on fintech experience through real-world projects that used data analysis and AI tools for financial insights. Participated in daily stand-ups, cool-downs, community building, and lecture sessions.',
     ],
     type: 'education',
   },
@@ -40,9 +37,7 @@ export const educationData: Experience[] = [
     from: '2023-11-01',
     to: '2024-09-01',
     description: [
-      'Built a strong foundation in Data Structures and Algorithms through lectures and weekly contests on Codeforces and LeetCode',
-      'Collaborated with peers in hackathons, team-based learning sessions, and mock interviews',
-      'Attended mentorship sessions with industry professionals and contributed to practical software development projects',
+      'Built a strong foundation in Data Structures and Algorithms through lectures and weekly contests on Codeforces and LeetCode. Collaborated with peers in hackathons, team-based learning sessions, and mock interviews, and attended mentorship sessions with industry professionals while contributing to practical software development projects.',
     ],
     type: 'education',
   },
@@ -58,14 +53,7 @@ export const workExperienceData: Experience[] = [
     from: '2025-08-01',
     to: '',
     description: [
-      {
-        text: 'Worked on various projects as a full-stack software developer with different clients to bring ideas into real products',
-        children: [
-          'Datasynx: An AI driven startup to automate workflows',
-          'DetailFlow: A SaaS tool for detailer shops to manage day to day appointments, employees and general shop tasks',
-          'CreditDisputor: A DIY tool to dispute credit issues for major American banks',
-        ],
-      },
+      'Worked with clients as a full-stack software developer to turn ideas into real products. Projects included Datasynx, an AI-driven startup automating workflows; DetailFlow, a SaaS tool for detailer shops to manage appointments, employees, and day-to-day operations; and CreditDisputor, a DIY tool for disputing credit issues with major American banks.',
     ],
     type: 'work',
   },
@@ -78,8 +66,7 @@ export const workExperienceData: Experience[] = [
     from: '2026-07-01',
     to: '2026-10-01',
     description: [
-      'Helped develop an internal AI assisted tool to assess customer portfolios for lending and collateral management',
-      'Helped improve an existing AI assisted tool to assure data quality among internal banking systems',
+      'Helped develop an internal AI-assisted tool to assess customer portfolios for lending and collateral management, and improved an existing AI-assisted tool to assure data quality across internal banking systems.',
     ],
     type: 'work',
   },
@@ -92,9 +79,7 @@ export const workExperienceData: Experience[] = [
     from: '2024-10-01',
     to: '2025-08-01',
     description: [
-      'Developed PHP backend services and React frontend pages as a full-stack software engineering intern',
-      'Built microservices communicating via gRPC, message queues, and procedure calls, with schedulers and cron jobs',
-      'Integrated the PHP backend with the React frontend using gRPC',
+      'Developed PHP backend services and React frontend pages as a full-stack software engineering intern. Built microservices that communicate via gRPC, message queues, and procedure calls, with schedulers and cron jobs, and integrated the PHP backend with the React frontend using gRPC.',
     ],
     type: 'work',
   },
@@ -107,9 +92,7 @@ export const workExperienceData: Experience[] = [
     from: '2024-07-01',
     to: '2024-09-01',
     description: [
-      'Worked as a web developer intern to make user-friendly interfaces using React.js and Tailwind CSS',
-      'Implemented state-management solutions via Redux Toolkit in a Next.js application',
-      'Implemented OAuth in Next.js app with NextAuth',
+      'Built user-friendly interfaces with React.js and Tailwind CSS as a web developer intern. Implemented state management with Redux Toolkit in a Next.js application and added OAuth authentication using NextAuth.',
     ],
     type: 'work',
   },

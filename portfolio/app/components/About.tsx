@@ -20,8 +20,7 @@ export default function About() {
       ref={sectionRef}
       className="relative w-full min-h-screen py-28 md:py-36 overflow-hidden"
     >
-      <div className="absolute inset-0 bg-bgSecondary bg-texture" />
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-warm-tan/[0.03] to-transparent pointer-events-none" />
+      <div className="absolute inset-0 section-bg-about" />
       <motion.div
         className="absolute top-0 right-0 w-[420px] h-[420px] rounded-full bg-warm-brown/8 blur-3xl pointer-events-none"
         animate={{ x: [0, 20, 0], y: [0, -12, 0] }}
